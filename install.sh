@@ -20,7 +20,7 @@ fi
 cargo build --release || display_error "Failed to build the tool."
 
 # Copy the binary to a directory in the PATH
-cp target/release/addalias /usr/local/bin/ || display_error "Failed to copy the binary to /usr/local/bin."
+cp target/release/aliasmanager /usr/local/bin/ || display_error "Failed to copy the binary to /usr/local/bin."
 
 # Check if the source command already exists in .zshrc
 if grep -q ".my_aliases.zsh" "/home/$SUDO_USER/.zshrc"; then
@@ -37,5 +37,5 @@ fi
 
   # Print installation success message
   display_success "Installation complete!"
-  display_success "You can now use 'addalias' to manage your aliases."
+  display_success "You can now use 'aliasmanager' to manage your aliases."
 
