@@ -1,7 +1,7 @@
 
 # Alias Manager
 
-Alias Manager is a simple command-line tool for managing aliases in your shell. It supports adding, listing, removing, and updating aliases in popular Unix-like shells, such as Bash and Zsh.
+Alias Manager is a simple command-line tool written in rust for managing aliases in your shell. It supports adding, listing and removing aliases in Zsh Shell.
 
 ## Features
 
