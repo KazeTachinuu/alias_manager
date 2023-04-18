@@ -12,14 +12,14 @@ Alias Manager is a simple command-line tool for managing aliases in your shell. 
 
 ## Requirements
 
+- Zsh Shell
 - Rust programming language (https://www.rust-lang.org/)
 - Cargo package manager (usually bundled with Rust)
 
 ## Installation
 
-1. Install Rust and Cargo by following the instructions on the Rust website: https://www.rust-lang.org/tools/install
 
-2. Clone this repository to your local machine:
+1. Clone this repository to your local machine:
 
 
 ```shell
@@ -27,7 +27,7 @@ git clone https://github.com/yourusername/alias_manager.git
 cd alias_manager
 ```
 
-3. Install the Alias Manager binary by running the install script:
+2. Install the Alias Manager binary by running the install script:
 
 ```shell
 ./install.sh
