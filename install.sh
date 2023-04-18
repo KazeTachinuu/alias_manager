@@ -11,6 +11,11 @@ display_success() {
   echo "Success: $1"
 }
 
+# Check if script is run with root privileges
+if [ "$EUID" -ne 0 ]; then
+  display_error "This script requires root privileges. Please run with sudo."
+fi
+
 # Build the tool
 cargo build --release || display_error "Failed to build the tool."
 
