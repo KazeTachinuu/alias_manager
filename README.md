@@ -41,7 +41,8 @@ Alias Manager provides several subcommands for managing aliases. Here's a summar
 
 
 
-```aliasmanager [SUBCOMMAND] [OPTIONS] [ARGS]```
+```sh
+aliasmanager [SUBCOMMAND] [OPTIONS] [ARGS]```
 
 
 
@@ -50,26 +51,23 @@ Alias Manager provides several subcommands for managing aliases. Here's a summar
 - `add`: Add a new alias with a custom command.
 
 
-`
+```sh
 aliasmanager add -n <ALIAS_NAME> -c <COMMAND>
-`
+```
 
-- `update`: Update an existing alias with a new command.
-
-`aliasmanager update -n <ALIAS_NAME> -c <NEW_COMMAND>
-`
 
 - `list`: List all existing aliases.
 
 
-
-`aliasmanager list
-`
+```sh
+aliasmanager list
+```
 
 - `remove`: Remove an alias by name.
 
-`aliasmanager remove -n <ALIAS_NAME>
-`
+```sh
+aliasmanager remove -n <ALIAS_NAME>
+```
 
 ### Options:
 
