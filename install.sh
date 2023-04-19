@@ -1,4 +1,4 @@
-#!/bin/zsh
+#!/bin/bash
 
 # Function to display error messages
 display_error() {
@@ -22,20 +22,20 @@ cargo build --release || display_error "Failed to build the tool."
 # Copy the binary to a directory in the PATH
 cp target/release/aliasmanager /usr/local/bin/ || display_error "Failed to copy the binary to /usr/local/bin."
 
-# Check if the source command already exists in .zshrc
-if grep -q ".my_aliases.zsh" "/home/$SUDO_USER/.zshrc"; then
-  display_success ".my_aliases.zsh already sourced in .zshrc"
+# Determine the user's shell
+user_shell=$(basename "$SHELL")
+echo "Detected user shell: $user_shell"
+# Check if the source command already exists in the appropriate shell rc file
+if grep -q ".my_aliases.zsh" "/home/$SUDO_USER/.$user_shell"rc; then
+  display_success ".my_aliases.zsh already sourced in .$user_shell"rc
 else
-  # Append a source command to .zshrc for .my_aliases.zsh
-  echo "" >> "/home/$SUDO_USER/.zshrc"
-  echo "# Alias Management Tool" >> "/home/$SUDO_USER/.zshrc"
-  echo "source /home/$SUDO_USER/.my_aliases.zsh" >> "/home/$SUDO_USER/.zshrc"
-
+  # Append a source command to the appropriate shell rc file for .my_aliases.zsh
+  echo "" >> "/home/$SUDO_USER/.$user_shell"rc
+  echo "# Alias Management Tool" >> "/home/$SUDO_USER/.$user_shell"rc
+  echo "source /home/$SUDO_USER/.my_aliases.zsh" >> "/home/$SUDO_USER/.$user_shell"rc
 fi
-  # Reload .zshrc in the current shell
-  source "/home/$SUDO_USER/.zshrc"
 
-  # Print installation success message
-  display_success "Installation complete!"
-  display_success "You can now use 'aliasmanager' to manage your aliases."
 
+# Print installation success message
+display_success "Installation complete!"
+display_success "You can now use 'aliasmanager' to manage your aliases."
