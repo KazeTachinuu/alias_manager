@@ -1,7 +1,7 @@
 
 # Alias Manager
 
-Alias Manager is a simple command-line tool written in rust for managing aliases in your shell. It supports adding, listing and removing aliases in you shell
+Alias Manager is a simple command-line tool written in rust for managing aliases in your shell. It supports adding, listing and removing aliases in your shell
 
 ## Features
 
