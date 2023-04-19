@@ -1,11 +1,10 @@
 use std::env;
+use std::fs::File;
 use std::fs::OpenOptions;
-use std::io::{self, BufRead, BufReader,BufWriter, Write};
+use std::io::{self, BufRead, BufReader, BufWriter, Write};
 use std::process::Command;
 use structopt::StructOpt;
 use termion::color;
-use std::fs::{File};
-
 
 #[derive(Debug, StructOpt)]
 #[structopt(about = "Manage aliases in .my_aliases.zsh file")]
@@ -25,13 +24,10 @@ enum Opt {
     },
     #[structopt(name = "list", about = "List all aliases")]
     List,
-
 }
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     let opt = Opt::from_args();
-
-   
 
     match opt {
         Opt::Add {
@@ -70,37 +66,35 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         Opt::Remove { alias_name } => {
             // Prompt for confirmation
             remove_alias(&alias_name)?;
-        
         }
         Opt::List => {
             list_aliases()?;
         }
-
-
     }
 
-    // Reload the .my_aliases.zsh file in the same shell
-    Command::new("zsh")
-        .arg("-i")
-        .spawn()?
-        .wait()?;
+    // Check the user's shell and write alias accordingly
+    let shell = env::var("SHELL")?;
+    Command::new(shell).arg("-i").spawn()?.wait()?;
+
     //terminate the program
     std::process::exit(0);
-
 }
 
-// Helper function to create the alias
-
-
 /// Helper function to create an alias
-fn create_alias(alias_name: &str, alias_command: &[String]) -> Result<(), Box<dyn std::error::Error>> {
+fn create_alias(
+    alias_name: &str,
+    alias_command: &[String],
+) -> Result<(), Box<dyn std::error::Error>> {
     // Join alias_command vector into a single string
     let alias_command = alias_command.join(" ");
 
     // Open .my_aliases.zsh file for appending
     let home = env::var("HOME")?;
     let file_path = format!("{}/.my_aliases.zsh", home);
-    let mut file = OpenOptions::new().append(true).create(true).open(&file_path)?;
+    let mut file = OpenOptions::new()
+        .append(true)
+        .create(true)
+        .open(&file_path)?;
 
     // Write alias to the file
     writeln!(file, "alias {}='{}'", alias_name, alias_command)?;
@@ -110,14 +104,16 @@ fn create_alias(alias_name: &str, alias_command: &[String]) -> Result<(), Box<dy
         alias_name, alias_command
     );
 
-
     Ok(())
 }
 
 fn remove_alias(alias_name: &str) -> io::Result<()> {
     // Open .my_aliases.zsh file for reading
     let home = env::var("HOME").map_err(|err| {
-        io::Error::new(io::ErrorKind::Other, format!("Failed to get HOME directory: {}", err))
+        io::Error::new(
+            io::ErrorKind::Other,
+            format!("Failed to get HOME directory: {}", err),
+        )
     })?;
     let file_path = format!("{}/.my_aliases.zsh", home);
     let file = File::open(&file_path)?;
