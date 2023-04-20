@@ -17,7 +17,7 @@ enum Opt {
         #[structopt(short = "c", long = "command", help = "Alias command", required = true)]
         alias_command: Vec<String>,
     },
-    #[structopt(name = "remove", about = "Remove an alias")]
+    #[structopt(name = "rm", about = "Remove an alias")]
     Remove {
         #[structopt(short = "n", long = "name", help = "Alias name")]
         alias_name: String,
