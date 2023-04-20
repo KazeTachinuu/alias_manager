@@ -61,10 +61,10 @@ aliasmanager add -n <ALIAS_NAME> -c <COMMAND>
 aliasmanager list
 ```
 
-- `remove`: Remove an alias by name.
+- `rm`: Remove an alias by name.
 
 ```sh
-aliasmanager remove -n <ALIAS_NAME>
+aliasmanager rm -n <ALIAS_NAME>
 ```
 
 ### Options:
