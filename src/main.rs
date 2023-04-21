@@ -7,7 +7,7 @@ use structopt::StructOpt;
 use termion::color;
 
 #[derive(Debug, StructOpt)]
-#[structopt(about = "Manage aliases in .my_aliases.zsh file")]
+#[structopt(about = "Manage aliases in .my_aliases.txt file")]
 enum Opt {
     #[structopt(name = "add", about = "Add an alias")]
     Add {
@@ -88,9 +88,9 @@ fn create_alias(
     // Join alias_command vector into a single string
     let alias_command = alias_command.join(" ");
 
-    // Open .my_aliases.zsh file for appending
+    // Open .my_aliases.txt file for appending
     let home = env::var("HOME")?;
-    let file_path = format!("{}/.my_aliases.zsh", home);
+    let file_path = format!("{}/.my_aliases.txt", home);
     let mut file = OpenOptions::new()
         .append(true)
         .create(true)
@@ -108,14 +108,14 @@ fn create_alias(
 }
 
 fn remove_alias(alias_name: &str) -> io::Result<()> {
-    // Open .my_aliases.zsh file for reading
+    // Open .my_aliases.txt file for reading
     let home = env::var("HOME").map_err(|err| {
         io::Error::new(
             io::ErrorKind::Other,
             format!("Failed to get HOME directory: {}", err),
         )
     })?;
-    let file_path = format!("{}/.my_aliases.zsh", home);
+    let file_path = format!("{}/.my_aliases.txt", home);
     let file = File::open(&file_path)?;
 
     // Read the lines from the file into a vector
@@ -162,9 +162,9 @@ fn remove_alias(alias_name: &str) -> io::Result<()> {
 
 // Helper function to list all aliases
 fn list_aliases() -> Result<(), Box<dyn std::error::Error>> {
-    // Open .my_aliases.zsh file for reading
+    // Open .my_aliases.txt file for reading
     let home = env::var("HOME")?;
-    let file_path = format!("{}/.my_aliases.zsh", home);
+    let file_path = format!("{}/.my_aliases.txt", home);
     let file_content = std::fs::read_to_string(&file_path)?;
 
     // Extract aliases from the file content
