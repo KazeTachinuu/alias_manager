@@ -21,7 +21,7 @@ Alias Manager is a simple command-line tool written in rust for managing aliases
 
 
 ```shell
-git clone https://github.com/yourusername/alias_manager.git
+git clone https://github.com/kazetachinuu/alias_manager.git
 cd alias_manager
 ```
 
