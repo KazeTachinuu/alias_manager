@@ -2,7 +2,7 @@ use std::env;
 use std::fs::File;
 use std::fs::OpenOptions;
 use std::io::{self, BufRead, BufReader, BufWriter, Write};
-use std::process::Command;
+// use std::process::Command;
 use structopt::StructOpt;
 use termion::color;
 
@@ -49,13 +49,13 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             );
 
             // Prompt for confirmation
-            println!("Do you want to create this alias? (y/n)");
+            println!("Do you want to create this alias? (Y/n)");
             let mut input = String::new();
             std::io::stdin().read_line(&mut input)?;
             let confirmation = input.trim().to_lowercase();
 
             match confirmation.as_str() {
-                "y" | "yes" => {
+                "y" | "yes" | "" => {
                     create_alias(&alias_name, &alias_command)?;
                 }
                 _ => {
@@ -65,16 +65,21 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         }
         Opt::Remove { alias_name } => {
             // Prompt for confirmation
-            remove_alias(&alias_name)?;
+            remove_alias(&alias_name, false)?;
         }
         Opt::List => {
             list_aliases()?;
         }
     }
 
-    // Check the user's shell and write alias accordingly
-    let shell = env::var("SHELL")?;
-    Command::new(shell).arg("-i").spawn()?.wait()?;
+    // [TODO]: source alias file without keeping the program running in the background after it exits
+   /* let home = env::var("HOME")?;
+    let file_path = format!("{}/.my_aliases.txt", home);
+    let cmd = "source ".to_string() + &file_path;
+        println!("{}", cmd);
+    Command::new(cmd);
+    */
+
 
     //terminate the program
     std::process::exit(0);
@@ -88,9 +93,30 @@ fn create_alias(
     // Join alias_command vector into a single string
     let alias_command = alias_command.join(" ");
 
-    // Open .my_aliases.txt file for appending
+    // Open .my_aliases.txt file for reading
     let home = env::var("HOME")?;
     let file_path = format!("{}/.my_aliases.txt", home);
+    let file_content = std::fs::read_to_string(&file_path)?;
+
+    // Check if alias already exists
+    if file_content.contains(&alias_name) {
+        println!(
+            "Alias '{}' already exists. Do you want to update it with the new command? (Y/n)",
+            alias_name
+        );
+        let mut input = String::new();
+        std::io::stdin().read_line(&mut input)?;
+        let confirmation = input.trim().to_lowercase();
+        if confirmation == "y" || confirmation == "yes" || confirmation == "" {
+            //remove the old alias
+            remove_alias(&alias_name, true)?;
+        } else {
+            println!("Alias creation cancelled by user.");
+            return Ok(());
+        }
+    }
+
+    // Open .my_aliases.txt file for appending
     let mut file = OpenOptions::new()
         .append(true)
         .create(true)
@@ -100,14 +126,14 @@ fn create_alias(
     writeln!(file, "alias {}='{}'", alias_name, alias_command)?;
 
     println!(
-        "Alias '{}' with command '{}' created successfully!",
+        "Alias '{}' with command '{}' created successfully!\nReload the terminal to use it.",
         alias_name, alias_command
     );
 
     Ok(())
 }
 
-fn remove_alias(alias_name: &str) -> io::Result<()> {
+fn remove_alias(alias_name: &str, is_forced: bool) -> io::Result<()> {
     // Open .my_aliases.txt file for reading
     let home = env::var("HOME").map_err(|err| {
         io::Error::new(
@@ -124,23 +150,24 @@ fn remove_alias(alias_name: &str) -> io::Result<()> {
         .map(|line| line.expect("Failed to read line"))
         .collect();
 
-    // Display the alias to be removed
-    println!("Removing alias:");
-    for line in &lines {
-        if line.starts_with(&format!("alias {}=", alias_name)) {
-            println!("{}", line);
-            break;
+    if !is_forced {
+        // Display the alias to be removed
+        println!("Removing alias:");
+        for line in &lines {
+            if line.starts_with(&format!("alias {}=", alias_name)) {
+                println!("{}", line);
+                break;
+            }
         }
-    }
-
-    // Prompt user for confirmation
-    println!("Do you want to remove this alias? (y/n)");
-    let mut confirmation = String::new();
-    io::stdin().read_line(&mut confirmation)?;
-    let confirmation = confirmation.trim().to_lowercase();
-    if confirmation != "y" && confirmation != "yes" {
-        println!("Aborted.");
-        return Ok(());
+        // Prompt user for confirmation
+        println!("Do you want to remove this alias? (Y/n)");
+        let mut confirmation = String::new();
+        io::stdin().read_line(&mut confirmation)?;
+        let confirmation = confirmation.trim().to_lowercase();
+        if confirmation != "y" && confirmation != "yes" && confirmation != "" {
+            println!("Aborted.");
+            return Ok(());
+        }
     }
 
     // Open the file again for writing
@@ -156,7 +183,9 @@ fn remove_alias(alias_name: &str) -> io::Result<()> {
     }
 
     writer.flush()?;
-    println!("Alias '{}' removed successfully!", alias_name);
+    if !is_forced {
+        println!("Alias '{}' removed successfully!", alias_name);
+    }
     Ok(())
 }
 
@@ -173,10 +202,23 @@ fn list_aliases() -> Result<(), Box<dyn std::error::Error>> {
         .filter(|line| line.starts_with("alias"))
         .collect();
 
-    // Print the aliases
-    println!("Aliases:");
+    println!(
+        "{}Aliases:{}",
+        color::Fg(color::Green),
+        color::Fg(color::Reset)
+    );
     for alias in aliases {
-        println!("{}", alias);
+        let alias = alias.replace("alias ", "");
+        let alias = alias.split('=').collect::<Vec<&str>>();
+        println!(
+            "{}{}{} => {}{}{}",
+            color::Fg(color::LightBlue),
+            alias[0],
+            color::Fg(color::Reset),
+            color::Fg(color::Yellow),
+            alias[1],
+            color::Fg(color::Reset)
+        );
     }
 
     Ok(())
