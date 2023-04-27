@@ -66,7 +66,11 @@ aliasmanager list
 ```sh
 aliasmanager rm -n <ALIAS_NAME>
 ```
+### Example
 
+```sh
+aliasmanager add -n am -c aliasmanager
+```
 ### Options:
 
 - `-n, --name <ALIAS_NAME>`: Specifies the name of the alias.
