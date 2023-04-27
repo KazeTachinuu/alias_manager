@@ -2,7 +2,7 @@ use std::env;
 use std::fs::File;
 use std::fs::OpenOptions;
 use std::io::{self, BufRead, BufReader, BufWriter, Write};
-// use std::process::Command;
+use std::process::Command;
 use structopt::StructOpt;
 use termion::color;
 
@@ -64,7 +64,6 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             }
         }
         Opt::Remove { alias_name } => {
-            // Prompt for confirmation
             remove_alias(&alias_name, false)?;
         }
         Opt::List => {
@@ -73,13 +72,13 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     }
 
     // [TODO]: source alias file without keeping the program running in the background after it exits
-   /* let home = env::var("HOME")?;
+    /* let home = env::var("HOME")?;
     let file_path = format!("{}/.my_aliases.txt", home);
-    let cmd = "source ".to_string() + &file_path;
+    let cmd = "exec ".to_string() + &file_path;
         println!("{}", cmd);
     Command::new(cmd);
     */
-
+    Command::new("exec zsh");
 
     //terminate the program
     std::process::exit(0);
