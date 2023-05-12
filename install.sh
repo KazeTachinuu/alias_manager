@@ -38,7 +38,7 @@ else
   # Append a source command to the appropriate shell rc file for .my_aliases.txt
   touch /home/$SUDO_USER/.my_aliases.txt || display_error "Failed to create .my_aliases.txt"
   echo "" >> "/home/$SUDO_USER/.$user_shell"rc
-  echo "# Alias Management Tool" >> "/home/$SUDO_USER/.$user_shell"rc
+          echo "# Alias Management Tool" >> "/home/$SUDO_USER/.$user_shell"rc
   echo "source /home/$SUDO_USER/.my_aliases.txt" >> "/home/$SUDO_USER/.$user_shell"rc
   display_success "Added source command to /home/$SUDO_USER/.$user_shell"rc
 fi

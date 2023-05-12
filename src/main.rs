@@ -222,3 +222,30 @@ fn list_aliases() -> Result<(), Box<dyn std::error::Error>> {
 
     Ok(())
 }
+
+// Test function
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_create_alias() {
+        let alias_name = "test_alias";
+        let alias_command = vec!["echo".to_string(), "test".to_string()];
+        let result = create_alias(alias_name, &alias_command);
+        assert!(result.is_ok());
+    }
+
+    #[test]
+    fn test_remove_alias() {
+        let alias_name = "test_alias";
+        let result = remove_alias(alias_name, true);
+        assert!(result.is_ok());
+    }
+
+    #[test]
+    fn test_list_aliases() {
+        let result = list_aliases();
+        assert!(result.is_ok());
+    }
+}
