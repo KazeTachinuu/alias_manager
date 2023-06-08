@@ -40,7 +40,7 @@ Alias Manager provides several subcommands for managing aliases. Here's a summar
 
 
 ```sh
-aliasmanager [SUBCOMMAND] [OPTIONS] [ARGS]```
+aliasmanager [SUBCOMMAND] [OPTIONS] [ARGS]
 ```
 
 
