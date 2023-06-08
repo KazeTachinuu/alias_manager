@@ -22,8 +22,9 @@ enum Opt {
         #[structopt(short = "n", long = "name", help = "Alias name")]
         alias_name: String,
     },
-    #[structopt(name = "list", about = "List all aliases")]
-    List,
+
+    #[structopt(name = "ls", about = "List all aliases")]
+    Ls,
 }
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
@@ -66,7 +67,8 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         Opt::Remove { alias_name } => {
             remove_alias(&alias_name, false)?;
         }
-        Opt::List => {
+
+        Opt::Ls => {
             list_aliases()?;
         }
     }
