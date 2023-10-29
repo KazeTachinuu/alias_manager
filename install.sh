@@ -17,33 +17,36 @@ display_success() {
   echo -e "${GREEN}[Success]: $1${NC}"
 }
 
-# Check if script is run with root privileges
-if [ "$EUID" -ne 0 ]; then
-  display_error "This script requires root privileges. Please run with sudo."
-fi
 
 # Build the tool
 cargo build --release || display_error "Failed to build the tool."
 
+mkdir -p ~/.local/bin || display_error "Failed to created ~/.local/bin directory"
+
 # Copy the binary to a directory in the PATH
-cp target/release/aliasmanager /usr/local/bin/ || display_error "Failed to copy the binary to /usr/local/bin."
+cp target/release/aliasmanager ~/.local/bin/ || display_error "Failed to copy the binary to ~/.local/bin"
+
+mv target/release/aliasmanager .
 
 # Determine the user's shell
-user_shell=$(basename "$SHELL")
-echo "Detected user shell: $user_shell"
+user_shell=$(basename "$SHELL")"rc"
 # Check if the source command already exists in the appropriate shell rc file
-if grep -q ".my_aliases.txt" "/home/$SUDO_USER/.$user_shell"rc; then
-  display_success ".my_aliases.txt already sourced in .$user_shell"rc
+if grep -q ".my_aliases.txt" "$HOME/.$user_shell"; then
+  display_success ".my_aliases.txt already sourced in .$user_shell"
 else
   # Append a source command to the appropriate shell rc file for .my_aliases.txt
-  touch /home/$SUDO_USER/.my_aliases.txt || display_error "Failed to create .my_aliases.txt"
-  echo "" >> "/home/$SUDO_USER/.$user_shell"rc
-          echo "# Alias Management Tool" >> "/home/$SUDO_USER/.$user_shell"rc
-  echo "source /home/$SUDO_USER/.my_aliases.txt" >> "/home/$SUDO_USER/.$user_shell"rc
-  display_success "Added source command to /home/$SUDO_USER/.$user_shell"rc
+  touch $HOME/.my_aliases.txt || display_error "Failed to create .my_aliases.txt"
+  echo "" >> "$HOME/.$user_shell"
+          echo "# Alias Management Tool" >> "$HOME/.$user_shell"
+  echo "source $HOME/.my_aliases.txt" >> "$HOME/.$user_shell"
+  display_success "Added source command to $HOME/.$user_shell"
 fi
 
 # Print installation success message
-display_success "Installation complete!"
-display_success "You can now use 'aliasmanager' to manage your aliases."
+display_success "Installation complete!\n"
+echo "Use ./aliasmanager or add it to PATH"
+
+echo -e "Add this to your $user_shell:\n"
+echo "PATH=\$PATH:\$HOME/.local/bin"
+echo "Run: aliasmanager add -n am -c aliasmanager"
 
