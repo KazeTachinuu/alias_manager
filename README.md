@@ -28,7 +28,7 @@ cd alias_manager
 2. Install the Alias Manager binary by running the install script:
 
 ```shell
-sudo ./install.sh
+./install.sh
 ```
 
 
