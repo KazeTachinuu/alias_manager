@@ -2,7 +2,7 @@ use std::env;
 use std::fs::File;
 use std::fs::OpenOptions;
 use std::io::{self, BufRead, BufReader, BufWriter, Write};
-use std::process::Command;
+// use std::process::Command;
 use structopt::StructOpt;
 use termion::color;
 
@@ -80,7 +80,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         println!("{}", cmd);
     Command::new(cmd);
     */
-    Command::new("exec zsh");
+    // Command::new("exec zsh");
 
     //terminate the program
     std::process::exit(0);
