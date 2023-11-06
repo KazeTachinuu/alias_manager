@@ -36,17 +36,18 @@ if grep -q ".my_aliases.txt" "$HOME/.$user_shell"; then
 else
   # Append a source command to the appropriate shell rc file for .my_aliases.txt
   touch $HOME/.my_aliases.txt || display_error "Failed to create .my_aliases.txt"
+
   echo "" >> "$HOME/.$user_shell"
           echo "# Alias Management Tool" >> "$HOME/.$user_shell"
-  echo "source $HOME/.my_aliases.txt" >> "$HOME/.$user_shell"
+  echo "source \$HOME/.my_aliases.txt" >> "$HOME/.$user_shell"
   display_success "Added source command to $HOME/.$user_shell"
+  echo "PATH=\$PATH:\$HOME/.local/bin" >> "$HOME/.$user_shell"
 fi
 
+
+echo "alias am='aliasmanager'" >> $HOME/.my_aliases.txt || display_error "Failed to add aliasmanager alias to ~/.my_aliases.txt"
 # Print installation success message
 display_success "Installation complete!\n"
-echo "Use ./aliasmanager or add it to PATH"
 
-echo -e "Add this to your $user_shell:\n"
-echo "PATH=\$PATH:\$HOME/.local/bin"
-echo "Run: aliasmanager add -n am -c aliasmanager"
+echo "alias am=aliasmanager added to ~/.my_aliases.txt"
 
