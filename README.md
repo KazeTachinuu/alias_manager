@@ -1,7 +1,7 @@
 
 # Alias Manager
 
-Alias Manager is a simple command-line tool written in rust for managing aliases in your shell. It supports adding, listing and removing aliases in your shell
+Alias Manager is a simple command-line tool written in C for managing aliases in your shell. It supports adding, listing and removing aliases in your shell
 
 ## Features
 
@@ -9,10 +9,6 @@ Alias Manager is a simple command-line tool written in rust for managing aliases
 - List existing aliases
 - Remove aliases by name
 
-## Requirements
-
-- Rust programming language (https://www.rust-lang.org/)
-- Cargo package manager (usually bundled with Rust)
 
 ## Installation
 
@@ -40,7 +36,7 @@ Alias Manager provides several subcommands for managing aliases. Here's a summar
 
 
 ```sh
-aliasmanager [SUBCOMMAND] [OPTIONS] [ARGS]
+aliasmanager [SUBCOMMAND] [ARGS]
 ```
 
 
@@ -50,7 +46,7 @@ aliasmanager [SUBCOMMAND] [OPTIONS] [ARGS]
 
 
 ```sh
-aliasmanager add -n <ALIAS_NAME> -c <COMMAND>
+aliasmanager add <ALIAS_NAME> <COMMAND>
 ```
 
 
@@ -64,7 +60,7 @@ aliasmanager ls
 - `rm`: Remove an alias by name.
 
 ```sh
-aliasmanager rm -n <ALIAS_NAME>
+aliasmanager rm  <ALIAS_NAME>
 ```
 ### Example
 

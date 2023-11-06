@@ -19,14 +19,13 @@ display_success() {
 
 
 # Build the tool
-cargo build --release || display_error "Failed to build the tool."
+gcc aliasmanager.c -o aliasmanager || display_error "Failed to build the tool."
 
 mkdir -p ~/.local/bin || display_error "Failed to created ~/.local/bin directory"
 
 # Copy the binary to a directory in the PATH
-cp target/release/aliasmanager ~/.local/bin/ || display_error "Failed to copy the binary to ~/.local/bin"
+cp aliasmanager ~/.local/bin/ || display_error "Failed to copy the binary to ~/.local/bin"
 
-mv target/release/aliasmanager .
 
 # Determine the user's shell
 user_shell=$(basename "$SHELL")"rc"
