@@ -265,11 +265,7 @@ void find_aliases(char *str)
             char *sub = strstr(line, str);
             if (sub != NULL)
             {
-                char *alias_name = strtok(line, "=");
-                char *alias_command = strtok(NULL, "'");
-
-                printf("%s => %s\n", alias_name, alias_command);
-
+                printf("%s", line + 6);
             }
         }
     }
