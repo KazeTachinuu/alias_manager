@@ -86,7 +86,3 @@ Contributions are welcome! If you would like to contribute to the Alias Manager 
 
 This project is licensed under the [MIT License](LICENSE).
 
-## Acknowledgements
-
-- [Clap](https://github.com/clap-rs/clap) - A powerful and flexible command-line argument parsing library for Rust.
-- [colored](https://github.com/mackwic/colored) - A library for adding color to terminal output in Rust.

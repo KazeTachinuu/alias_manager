@@ -159,9 +159,20 @@ void list_aliases() {
     fclose(file);
 }
 
+
+void help(void){
+    printf("Usage: aliasmanager <command> <args>\n");
+    printf("Manage your aliases in ~/.my_aliases.txt\n");
+    printf("\n   aliasmanager add <name> <command>      add alias\n");
+    printf("\n   aliasmanager rm <name>                 remove alias\n");
+    printf("\n   aliasmanager ls                        list all aliases\n");
+
+}
+
 int main(int argc, char *argv[]) {
     if (argc < 2) {
-        printf("Usage: %s <command> [options]\n", argv[0]);
+        printf("Usage: %s <command> <args>\n", argv[0]);
+        printf("\n   Consider '%s help' for more informations\n",argv[0]);
         return 1;
     }
 
@@ -192,7 +203,7 @@ int main(int argc, char *argv[]) {
 
         list_aliases();
     } else {
-        printf("Invalid command. Available commands: add, rm, ls\n");
+        help();
         return 1;
     }
 
