@@ -274,7 +274,7 @@ void find_aliases(char *str)
 }
 void show_version(void)
 {
-    printf("aliasmanager %s\n", Version);
+    printf("aliasmanager v%s\n", Version);
 }
 
 void show_help(void)
