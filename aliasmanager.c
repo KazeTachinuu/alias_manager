@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#define Version "5.3.0"
+#define Version "6.0.0"
 
 int IsAliasInLine(const char *line, const char *alias_name)
 {
