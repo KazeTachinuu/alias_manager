@@ -60,17 +60,17 @@ aliasmanager ls
 - `rm`: Remove an alias by name.
 
 ```sh
-aliasmanager rm  <ALIAS_NAME>
+aliasmanager rm  <ALIAS_NAME> [-f|--force]
 ```
 ### Example
 
 ```sh
-aliasmanager add -n am -c aliasmanager
+aliasmanager add  am  aliasmanager
+aliasmanager add bonjour "echo 'Hello World!'"
 ```
 ### Options:
 
-- `-n, --name "<ALIAS_NAME>"`: Specifies the name of the alias.
-- `-c, --command <COMMAND>`: Specifies the command associated with the alias.
+- `-V, --version`: Prints version information
 - `-h, --help`: Prints help information for the subcommand.
 
 
