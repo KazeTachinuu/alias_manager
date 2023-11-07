@@ -50,11 +50,11 @@ aliasmanager add <ALIAS_NAME> <COMMAND>
 ```
 
 
-- `ls`: List all existing aliases.
+- `ls`: List all existing aliases with optionnal matching string.
 
 
 ```sh
-aliasmanager ls
+aliasmanager ls [STRING]
 ```
 
 - `rm`: Remove an alias by name.
