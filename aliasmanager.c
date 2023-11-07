@@ -4,21 +4,19 @@
 
 #define Version "5.3.0"
 
-int IsAliasInLine(char *line, char *alias_name)
+int IsAliasInLine(const char *line, const char *alias_name)
 {
-    int len = strlen(alias_name);
-    int len2 = strlen(line);
 
     int i = 6;
     int j = 0;
 
-    while (i < len2 && j < len && line[i] == alias_name[j])
+    while (line[i] != '\0' && alias_name[j] != '\0' && line[i] == alias_name[j])
     {
         i++;
         j++;
     }
 
-    return i < len2 && j == len && line[i] == '=';
+    return line[i] != '\0' && alias_name[j] =='\0' && line[i] == '=';
 }
 
 // Function to create an alias
@@ -282,7 +280,7 @@ void show_help(void)
     show_version();
     printf("Manage your aliases in ~/.my_aliases.txt\n");
     printf("\n   aliasmanager add <ALIAS_NAME> <COMMAND>     add alias\n");
-    printf("   aliasmanager rm <ALIAS_NAME> [-f|--force]      remove alias\n");
+    printf("   aliasmanager rm <ALIAS_NAME> [-f|--force]   remove alias\n");
     printf("   aliasmanager ls                             list all aliases\n");
     printf("   aliasmanager ls <STRING>                    list all aliases "
             "matching <STRING>");
@@ -294,9 +292,7 @@ int main(int argc, char *argv[])
 {
     if (argc < 2)
     {
-        printf("Not enough arguments\n");
-        printf("Usage: %s <SUBCOMMAND> <ARGS>\n", argv[0]);
-        printf("\nConsider using '%s -h | --help' for more informations\n", argv[0]);
+        show_help();
         return 1;
     }
 
@@ -357,7 +353,7 @@ int main(int argc, char *argv[])
     {
         printf("Unknown subcommand '%s'\n", argv[1]);
         printf("Usage: %s <SUBCOMMAND> <ARGS>\n", argv[0]);
-        printf("\nConsider using '%s -h | --help' for more informations\n", argv[0]);
+        printf("\nConsider using '%s -h | --help' for more information\n", argv[0]);
         return 1;
     }
 
