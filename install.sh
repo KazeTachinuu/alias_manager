@@ -19,7 +19,7 @@ display_success() {
 
 
 # Build the tool
-gcc aliasmanager.c -o aliasmanager || display_error "Failed to build the tool."
+make || display_error "Failed to build the tool."
 
 mkdir -p ~/.local/bin || display_error "Failed to created ~/.local/bin directory"
 
@@ -41,12 +41,12 @@ else
   echo "source \$HOME/.my_aliases.txt" >> "$HOME/.$user_shell"
   display_success "Added source command to $HOME/.$user_shell"
   echo "PATH=\$PATH:\$HOME/.local/bin" >> "$HOME/.$user_shell"
+  echo "alias am='aliasmanager'" >> $HOME/.my_aliases.txt || display_error "Failed to add aliasmanager alias to ~/.my_aliases.txt"
+  echo "alias am=aliasmanager added to ~/.my_aliases.txt"
+
 fi
 
-
-echo "alias am='aliasmanager'" >> $HOME/.my_aliases.txt || display_error "Failed to add aliasmanager alias to ~/.my_aliases.txt"
 # Print installation success message
 display_success "Installation complete!\n"
 
-echo "alias am=aliasmanager added to ~/.my_aliases.txt"
 

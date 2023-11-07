@@ -46,7 +46,37 @@ void create_alias(const char *alias_name, const char *alias_command)
     }
 
     // Write alias to the file
-    fprintf(file, "alias %s='%s'\n", alias_name, alias_command);
+    //if char ' in alias_command, replace with \' and surround with double quotes
+    if (strchr(alias_command, '\'') != NULL)
+    {
+        //replace ' with \'
+        char *alias_command2 = malloc(strlen(alias_command) + 1);
+        int i = 0;
+        int j = 0;
+        while (alias_command[i] != '\0')
+        {
+            if (alias_command[i] == '\'')
+            {
+                alias_command2[j] = '\\';
+                j++;
+                alias_command2[j] = '\'';
+            }
+            else
+            {
+                alias_command2[j] = alias_command[i];
+            }
+            i++;
+            j++;
+        }
+        alias_command2[j] = '\0';
+
+        fprintf(file, "alias %s=\"%s\"\n", alias_name, alias_command2);
+
+    }
+    else
+    {
+        fprintf(file, "alias %s='%s'\n", alias_name, alias_command);
+    }
 
     fclose(file);
 
@@ -191,12 +221,11 @@ void list_aliases()
     {
         if (strstr(line, "alias") == line)
         {
-            char *alias_name = strtok(line, "=");
-            char *alias_command = strtok(NULL, "'");
-
-            printf("%s => %s\n", alias_name, alias_command);
+            //print the line but without the "alias" word
+            printf("%s", line + 6);
         }
     }
+    printf("\n");
 
     fclose(file);
 }
@@ -224,7 +253,8 @@ int main(int argc, char *argv[])
     {
         printf("Not enough arguments\n");
         printf("Usage: %s <SUBCOMMAND> <ARGS>\n", argv[0]);
-        printf("\nConsider using '%s -h | --help' for more informations\n", argv[0]);
+        printf("\nConsider using '%s -h | --help' for more informations\n",
+               argv[0]);
         return 1;
     }
 
@@ -279,7 +309,8 @@ int main(int argc, char *argv[])
     {
         printf("Unknown subcommand '%s'\n", argv[1]);
         printf("Usage: %s <SUBCOMMAND> <ARGS>\n", argv[0]);
-        printf("\nConsider using '%s -h | --help' for more informations\n", argv[0]);
+        printf("\nConsider using '%s -h | --help' for more informations\n",
+               argv[0]);
         return 1;
     }
 
