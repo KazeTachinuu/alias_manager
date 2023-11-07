@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#define Version "5.1.0"
+#define Version "5.3.0"
 
 int IsAliasInLine(char *line, char *alias_name)
 {
@@ -262,8 +262,8 @@ void find_aliases(char *str)
     {
         if (strstr(line, "alias") == line)
         {
-            char *sub = strstr(line, str);
-            if (sub != NULL)
+
+            if (strstr(line, str))
             {
                 printf("%s", line + 6);
             }
