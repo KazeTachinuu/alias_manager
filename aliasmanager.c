@@ -213,6 +213,7 @@ void show_help(void)
     printf("\n   aliasmanager add <ALIAS_NAME> <COMMAND>     add alias\n");
     printf("   aliasmanager rm <ALIAS_NAME> [-f|--force]      remove alias\n");
     printf("   aliasmanager ls                             list all aliases\n");
+    printf("   aliasmanager ls <STRING>                    list all aliases matching <STRING>");
     printf("\n    -V --version             Show version of this program\n");
     printf("    -h --help                Show this page of help\n");
 }
