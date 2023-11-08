@@ -327,7 +327,7 @@ int main(int argc, char *argv[])
     {
         if (argc > 3)
         {
-            printf("Usage: %s ls [<STRING>]\n", argv[0]);
+            printf("Usage: %s ls [STRING]\n", argv[0]);
             return 1;
         }
         if (argc == 2)
