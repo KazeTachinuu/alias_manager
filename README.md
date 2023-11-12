@@ -65,8 +65,16 @@ aliasmanager rm  <ALIAS_NAME> [-f|--force]
 ### Example
 
 ```sh
-aliasmanager add  am  aliasmanager
-aliasmanager add bonjour "echo 'Hello World!'"
+$ aliasmanager add  am  aliasmanager
+$ aliasmanager add bonjour "echo 'Hello World!'"
+$ am ls git
+
+Aliases matching "git":
+gca='git commit -a -m'
+gs='git status'
+gp='git push'
+gpl='git pull'
+gpt='git push --follow-tags'
 ```
 ### Options:
 
