@@ -2,11 +2,10 @@
 #include <stdlib.h>
 #include <string.h>
 
-#define Version "6.0.0"
+#define Version "6.0.1"
 
 int IsAliasInLine(const char *line, const char *alias_name)
 {
-
     int i = 6;
     int j = 0;
 
@@ -16,7 +15,7 @@ int IsAliasInLine(const char *line, const char *alias_name)
         j++;
     }
 
-    return line[i] != '\0' && alias_name[j] =='\0' && line[i] == '=';
+    return line[i] != '\0' && alias_name[j] == '\0' && line[i] == '=';
 }
 
 // Function to create an alias
@@ -33,7 +32,7 @@ void create_alias(const char *alias_name, const char *alias_command)
     // Construct the full path to the alias file
     char alias_file_path[1024];
     snprintf(alias_file_path, sizeof(alias_file_path), "%s/.my_aliases.txt",
-            home_dir);
+             home_dir);
 
     // Open .my_aliases.txt file for appending
     FILE *file = fopen(alias_file_path, "a");
@@ -44,10 +43,11 @@ void create_alias(const char *alias_name, const char *alias_command)
     }
 
     // Write alias to the file
-    //if char ' in alias_command, replace with \' and surround with double quotes
+    // if char ' in alias_command, replace with \' and surround with double
+    // quotes
     if (strchr(alias_command, '\'') != NULL)
     {
-        //replace ' with \'
+        // replace ' with \'
         char *alias_command2 = malloc(strlen(alias_command) + 1);
         int i = 0;
         int j = 0;
@@ -69,7 +69,6 @@ void create_alias(const char *alias_name, const char *alias_command)
         alias_command2[j] = '\0';
 
         fprintf(file, "alias %s=\"%s\"\n", alias_name, alias_command2);
-
     }
     else
     {
@@ -79,8 +78,8 @@ void create_alias(const char *alias_name, const char *alias_command)
     fclose(file);
 
     printf("Alias '%s' with command '%s' created successfully!\nReload the "
-            "terminal to use it.\n",
-            alias_name, alias_command);
+           "terminal to use it.\n",
+           alias_name, alias_command);
 }
 
 // Function to remove an alias
@@ -97,7 +96,7 @@ void remove_alias(char *alias_name, int is_forced)
     // Construct the full path to the alias file
     char alias_file_path[1024];
     snprintf(alias_file_path, sizeof(alias_file_path), "%s/.my_aliases.txt",
-            home_dir);
+             home_dir);
 
     // Open .my_aliases.txt file for reading
     FILE *file = fopen(alias_file_path, "r");
@@ -136,8 +135,8 @@ void remove_alias(char *alias_name, int is_forced)
                     confirmation[strcspn(confirmation, "\n")] =
                         0; // Remove newline
                     if (strcmp(confirmation, "y") != 0
-                            && strcmp(confirmation, "Y") != 0
-                            && strcmp(confirmation, "") != 0)
+                        && strcmp(confirmation, "Y") != 0
+                        && strcmp(confirmation, "") != 0)
                     {
                         printf("Aborted.\n");
                         fclose(file);
@@ -200,7 +199,7 @@ void list_aliases()
     // Construct the full path to the alias file
     char alias_file_path[1024];
     snprintf(alias_file_path, sizeof(alias_file_path), "%s/.my_aliases.txt",
-            home_dir);
+             home_dir);
 
     // Open .my_aliases.txt file for reading
     FILE *file = fopen(alias_file_path, "r");
@@ -219,7 +218,7 @@ void list_aliases()
     {
         if (strstr(line, "alias") == line)
         {
-            //print the line but without the "alias" word
+            // print the line but without the "alias" word
             printf("%s", line + 6);
         }
     }
@@ -241,7 +240,7 @@ void find_aliases(char *str)
     // Construct the full path to the alias file
     char alias_file_path[1024];
     snprintf(alias_file_path, sizeof(alias_file_path), "%s/.my_aliases.txt",
-            home_dir);
+             home_dir);
 
     // Open .my_aliases.txt file for reading
     FILE *file = fopen(alias_file_path, "r");
@@ -258,13 +257,9 @@ void find_aliases(char *str)
     // Extract aliases from the file content
     while (fgets(line, sizeof(line), file) != NULL)
     {
-        if (strstr(line, "alias") == line)
+        if (strstr(line, str))
         {
-
-            if (strstr(line, str))
-            {
-                printf("%s", line + 6);
-            }
+            printf("%s", line + 6);
         }
     }
 
@@ -283,7 +278,7 @@ void show_help(void)
     printf("   aliasmanager rm <ALIAS_NAME> [-f|--force]   remove alias\n");
     printf("   aliasmanager ls                             list all aliases\n");
     printf("   aliasmanager ls <STRING>                    list all aliases "
-            "matching <STRING>");
+           "matching <STRING>");
     printf("\n    -V --version             Show version of this program\n");
     printf("    -h --help                Show this page of help\n");
 }
@@ -316,7 +311,7 @@ int main(int argc, char *argv[])
 
         int is_forced = 0;
         if ((argc == 4 && strcmp(argv[3], "--force") == 0)
-                || (argc == 4 && strcmp(argv[3], "-f") == 0))
+            || (argc == 4 && strcmp(argv[3], "-f") == 0))
         {
             is_forced = 1;
         }
@@ -353,7 +348,8 @@ int main(int argc, char *argv[])
     {
         printf("Unknown subcommand '%s'\n", argv[1]);
         printf("Usage: %s <SUBCOMMAND> <ARGS>\n", argv[0]);
-        printf("\nConsider using '%s -h | --help' for more information\n", argv[0]);
+        printf("\nConsider using '%s -h | --help' for more information\n",
+               argv[0]);
         return 1;
     }
 

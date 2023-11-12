@@ -2,6 +2,8 @@
 .idea
 
 
+
+
 # Prerequisites
 *.d
 
@@ -33,6 +35,7 @@
 *.dylib
 
 # Executables
+aliasmanager
 *.exe
 *.out
 *.app
