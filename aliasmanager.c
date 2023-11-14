@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#define Version "6.0.2"
+#define Version "6.1.0"
 
 int IsAliasInLine(const char *line, const char *alias_name)
 {
@@ -77,9 +77,8 @@ void create_alias(const char *alias_name, const char *alias_command)
 
     fclose(file);
 
-    printf("Alias '%s' with command '%s' created successfully!\nsource "
-           "$HOME/.my_aliases.txt to use it\n",
-           alias_name, alias_command);
+    printf("Alias '%s' with command '%s' created successfully!\n", alias_name,
+           alias_command);
 }
 
 // Function to remove an alias

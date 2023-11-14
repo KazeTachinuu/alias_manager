@@ -41,8 +41,12 @@ else
   echo "source \$HOME/.my_aliases.txt" >> "$HOME/.$user_shell"
   display_success "Added source command to $HOME/.$user_shell"
   echo "PATH=\$PATH:\$HOME/.local/bin" >> "$HOME/.$user_shell"
-  echo "alias am='aliasmanager'" >> $HOME/.my_aliases.txt || display_error "Failed to add aliasmanager alias to ~/.my_aliases.txt"
-  echo "alias am=aliasmanager added to ~/.my_aliases.txt"
+
+  echo "
+am (){
+    aliasmanager \$@;
+    source \$HOME/.my_aliases.txt
+}" >> "$HOME/.$user_shell" || display_error "bite" 
 
 fi
 

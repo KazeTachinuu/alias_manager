@@ -36,7 +36,7 @@ Alias Manager provides several subcommands for managing aliases. Here's a summar
 
 
 ```sh
-aliasmanager [SUBCOMMAND] [ARGS]
+am [SUBCOMMAND] [ARGS]
 ```
 
 
@@ -46,7 +46,7 @@ aliasmanager [SUBCOMMAND] [ARGS]
 
 
 ```sh
-aliasmanager add <ALIAS_NAME> <COMMAND>
+am add <ALIAS_NAME> <COMMAND>
 ```
 
 
@@ -54,19 +54,18 @@ aliasmanager add <ALIAS_NAME> <COMMAND>
 
 
 ```sh
-aliasmanager ls [STRING]
+am ls [STRING]
 ```
 
 - `rm`: Remove an alias by name.
 
 ```sh
-aliasmanager rm  <ALIAS_NAME> [-f|--force]
+am rm  <ALIAS_NAME> [-f|--force]
 ```
 ### Example
 
 ```sh
-$ aliasmanager add  am  aliasmanager
-$ aliasmanager add bonjour "echo 'Hello World!'"
+$ am add gp "git push"
 $ am ls git
 
 Aliases matching "git":
