@@ -46,7 +46,7 @@ else
 am (){
     aliasmanager \$@;
     source \$HOME/.my_aliases.txt
-}" >> "$HOME/.$user_shell" || display_error "bite" 
+}" >> "$HOME/.$user_shell" || display_error "Couldn't write in $user_shell" 
 
 fi
 
