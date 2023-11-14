@@ -276,10 +276,10 @@ void show_help(void)
 {
     show_version();
     printf("Manage your aliases in ~/.my_aliases.txt\n");
-    printf("\n   aliasmanager add <ALIAS_NAME> <COMMAND>     add alias\n");
-    printf("   aliasmanager rm <ALIAS_NAME> [-f|--force]   remove alias\n");
-    printf("   aliasmanager ls                             list all aliases\n");
-    printf("   aliasmanager ls <STRING>                    list all aliases "
+    printf("\n   am add <ALIAS_NAME> <COMMAND>     add alias\n");
+    printf("   am rm <ALIAS_NAME> [-f|--force]   remove alias\n");
+    printf("   am ls                             list all aliases\n");
+    printf("   am ls <STRING>                    list all aliases "
            "matching <STRING>");
     printf("\n    -V --version             Show version of this program\n");
     printf("    -h --help                Show this page of help\n");
