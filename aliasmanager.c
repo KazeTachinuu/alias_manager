@@ -77,8 +77,7 @@ void create_alias(const char *alias_name, const char *alias_command)
 
     fclose(file);
 
-    printf("Alias '%s' with command '%s' created successfully!\nReload the "
-           "terminal to use it.\n",
+    printf("Alias '%s' with command '%s' created successfully!\nsource $HOME/.my_aliases.txt to use it\n",
            alias_name, alias_command);
 }
 
