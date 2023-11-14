@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#define Version "6.0.1"
+#define Version "6.0.2"
 
 int IsAliasInLine(const char *line, const char *alias_name)
 {
@@ -77,7 +77,8 @@ void create_alias(const char *alias_name, const char *alias_command)
 
     fclose(file);
 
-    printf("Alias '%s' with command '%s' created successfully!\nsource $HOME/.my_aliases.txt to use it\n",
+    printf("Alias '%s' with command '%s' created successfully!\nsource "
+           "$HOME/.my_aliases.txt to use it\n",
            alias_name, alias_command);
 }
 
@@ -256,9 +257,12 @@ void find_aliases(char *str)
     // Extract aliases from the file content
     while (fgets(line, sizeof(line), file) != NULL)
     {
-        if (strstr(line, str))
+        if (strstr(line, "alias"))
         {
-            printf("%s", line + 6);
+            if (strstr(line + 6, str))
+            {
+                printf("%s", line + 6);
+            }
         }
     }
 
