@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#define Version "6.1.0"
+#define Version "6.1.1"
 
 int IsAliasInLine(const char *line, const char *alias_name)
 {
@@ -275,14 +275,18 @@ void show_version(void)
 void show_help(void)
 {
     show_version();
-    printf("Manage your aliases in ~/.my_aliases.txt\n");
-    printf("\n   am add <ALIAS_NAME> <COMMAND>     add alias\n");
-    printf("   am rm <ALIAS_NAME> [-f|--force]   remove alias\n");
-    printf("   am ls                             list all aliases\n");
-    printf("   am ls <STRING>                    list all aliases "
-           "matching <STRING>");
-    printf("\n    -V --version             Show version of this program\n");
-    printf("    -h --help                Show this page of help\n");
+    printf("Manage your aliases in ~/.my_aliases.txt\n\n");
+    printf("USAGE:\n");
+    printf("    am <SUBCOMMAND>\n\n");
+    printf("SUBCOMMAND:\n");
+    printf("    am add <ALIAS_NAME> <COMMAND>    add alias\n");
+    printf("    am rm <ALIAS_NAME>               remove alias\n");
+    printf("    am ls                            list all aliases\n");
+    printf("    am ls <STRING>                   list all aliases "
+           "matching <STRING>\n\n");
+    printf("FLAGS:\n");
+    printf("    -h, --help       Prints help information\n");
+    printf("    -V, --version    Prints version information\n");
 }
 
 int main(int argc, char *argv[])
@@ -307,7 +311,7 @@ int main(int argc, char *argv[])
     {
         if (argc < 3)
         {
-            printf("Usage: %s rm <ALIAS_NAME> [-f|--force]\n", argv[0]);
+            printf("Usage: %s rm <ALIAS_NAME>\n", argv[0]);
             return 1;
         }
 
