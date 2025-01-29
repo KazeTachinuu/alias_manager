@@ -1,363 +1,300 @@
+#include <ctype.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sys/stat.h>
+#include <unistd.h>
+#include <errno.h>
+#include <stdarg.h>
 
-#define Version "6.1.1"
+#include "alias_manager.h"
 
-int IsAliasInLine(const char *line, const char *alias_name)
-{
-    int i = 6;
-    int j = 0;
+// ANSI color codes
+#define COLOR_BLUE    "\033[0;34m"
+#define COLOR_GREEN   "\033[0;32m"
+#define COLOR_RED     "\033[0;31m"
+#define COLOR_YELLOW  "\033[0;33m"
+#define COLOR_RESET   "\033[0m"
 
-    while (line[i] != '\0' && alias_name[j] != '\0' && line[i] == alias_name[j])
-    {
-        i++;
-        j++;
-    }
-
-    return line[i] != '\0' && alias_name[j] == '\0' && line[i] == '=';
+static void log_info(const char *fmt, ...) {
+    va_list args;
+    va_start(args, fmt);
+    vfprintf(stdout, fmt, args);
+    fprintf(stdout, "\n");
+    va_end(args);
 }
 
-// Function to create an alias
-void create_alias(const char *alias_name, const char *alias_command)
-{
-    // Get the value of HOME environment variable
-    const char *home_dir = getenv("HOME");
-    if (home_dir == NULL)
-    {
-        perror("Failed to get the HOME directory");
-        return;
-    }
-
-    // Construct the full path to the alias file
-    char alias_file_path[1024];
-    snprintf(alias_file_path, sizeof(alias_file_path), "%s/.my_aliases.txt",
-             home_dir);
-
-    // Open .my_aliases.txt file for appending
-    FILE *file = fopen(alias_file_path, "a");
-    if (file == NULL)
-    {
-        perror("Failed to open the alias file");
-        return;
-    }
-
-    // Write alias to the file
-    // if char ' in alias_command, replace with \' and surround with double
-    // quotes
-    if (strchr(alias_command, '\'') != NULL)
-    {
-        // replace ' with \'
-        char *alias_command2 = malloc(strlen(alias_command) + 1);
-        int i = 0;
-        int j = 0;
-        while (alias_command[i] != '\0')
-        {
-            if (alias_command[i] == '\'')
-            {
-                alias_command2[j] = '\\';
-                j++;
-                alias_command2[j] = '\'';
-            }
-            else
-            {
-                alias_command2[j] = alias_command[i];
-            }
-            i++;
-            j++;
-        }
-        alias_command2[j] = '\0';
-
-        fprintf(file, "alias %s=\"%s\"\n", alias_name, alias_command2);
-    }
-    else
-    {
-        fprintf(file, "alias %s='%s'\n", alias_name, alias_command);
-    }
-
-    fclose(file);
-
-    printf("Alias '%s' with command '%s' created successfully!\n", alias_name,
-           alias_command);
+static void log_error(const char *fmt, ...) {
+    va_list args;
+    va_start(args, fmt);
+    fprintf(stderr, "%sError:%s ", COLOR_RED, COLOR_RESET);
+    vfprintf(stderr, fmt, args);
+    fprintf(stderr, "\n");
+    va_end(args);
 }
 
-// Function to remove an alias
-void remove_alias(char *alias_name, int is_forced)
+static void log_success(const char *fmt, ...) {
+    va_list args;
+    va_start(args, fmt);
+    printf("%s✓%s ", COLOR_GREEN, COLOR_RESET);
+    vprintf(fmt, args);
+    printf("\n");
+    va_end(args);
+}
+
+static FILE *open_alias_file(const char *mode)
 {
-    // Get the value of HOME environment variable
-    const char *home_dir = getenv("HOME");
-    if (home_dir == NULL)
+    char *path = get_alias_file_path();
+    if (!path)
     {
-        perror("Failed to get the HOME directory");
-        return;
+        return NULL;
+    }
+    
+    FILE *fp = fopen(path, mode);
+    if (!fp && errno != ENOENT)
+    {
+        log_error("Cannot access %s: %s", path, strerror(errno));
+    }
+    free(path);
+    return fp;
+}
+
+static ErrorCode write_alias(FILE *fp, const char *name, const char *command)
+{
+    char clean_cmd[MAX_LINE_LENGTH] = {0};
+    size_t j = 0;
+    
+    // Replace quotes with spaces
+    for (const char *src = command; *src && j < MAX_LINE_LENGTH - 1; src++) {
+        clean_cmd[j++] = (*src == '\'') ? ' ' : *src;
+    }
+    
+    return fprintf(fp, "alias %s='%s'\n", name, clean_cmd) > 0 ? 
+        SUCCESS : ERR_FILE_ACCESS;
+}
+
+ErrorCode am_add(const char *name, const char *command)
+{
+    if (!is_valid_name(name))
+    {
+        log_error("Invalid alias name");
+        return ERR_INVALID_ARG;
+    }
+    if (!command || strlen(command) == 0)
+    {
+        log_error("Command cannot be empty");
+        return ERR_INVALID_ARG;
     }
 
-    // Construct the full path to the alias file
-    char alias_file_path[1024];
-    snprintf(alias_file_path, sizeof(alias_file_path), "%s/.my_aliases.txt",
-             home_dir);
-
-    // Open .my_aliases.txt file for reading
-    FILE *file = fopen(alias_file_path, "r");
-    if (file == NULL)
+    char *path = get_alias_file_path();
+    if (!path)
     {
-        perror("Failed to open the alias file");
-        return;
+        return ERR_HOME_DIR;
     }
 
-    char line[1024];
-    char lines[1024][1024];
-    int found = 0;
-    int i = 0;
-
-    // Read the lines from the file
-    while (fgets(line, sizeof(line), file) != NULL)
+    // Remove existing alias first
+    ErrorCode err = am_remove(name, true);
+    if (err != SUCCESS && err != ERR_FILE_ACCESS)
     {
-        // copy the line to the array
-        strcpy(lines[i], line);
-        i++;
+        free(path);
+        return err;
+    }
 
-        if (found != 1 && IsAliasInLine(line, alias_name))
+    FILE *fp = fopen(path, "a");
+    if (!fp)
+    {
+        log_error("Cannot write to alias file");
+        free(path);
+        return ERR_FILE_ACCESS;
+    }
+
+    err = write_alias(fp, name, command);
+    fclose(fp);
+    free(path);
+    
+    if (err == SUCCESS)
+    {
+        log_success("Added alias '%s%s%s' → '%s'", COLOR_YELLOW, name, COLOR_RESET, command);
+    }
+    return err;
+}
+
+ErrorCode am_remove(const char *name, bool force)
+{
+    if (!is_valid_name(name))
+    {
+        if (!force) log_error("Invalid alias name");
+        return ERR_INVALID_ARG;
+    }
+
+    char *path = get_alias_file_path();
+    if (!path)
+    {
+        return ERR_HOME_DIR;
+    }
+
+    if (access(path, F_OK) != 0)
+    {
+        free(path);
+        return SUCCESS;
+    }
+
+    char temp_path[MAX_LINE_LENGTH + 5];
+    snprintf(temp_path, sizeof(temp_path), "%s.tmp", path);
+
+    FILE *src = fopen(path, "r");
+    if (!src)
+    {
+        free(path);
+        return ERR_FILE_ACCESS;
+    }
+
+    FILE *dst = fopen(temp_path, "w");
+    if (!dst)
+    {
+        fclose(src);
+        free(path);
+        return ERR_FILE_ACCESS;
+    }
+
+    char line[MAX_LINE_LENGTH];
+    bool found = false;
+
+    while (fgets(line, sizeof(line), src))
+    {
+        if (strstr(line, "alias ") == line && 
+            strncmp(line + 6, name, strlen(name)) == 0 &&
+            line[6 + strlen(name)] == '=')
         {
-            found = 1;
-
-            // Display the alias to be removed
-            printf("Removing alias:\n%s", line);
-
-            if (!is_forced)
+            found = true;
+            if (!force)
             {
-                // Prompt user for confirmation
-                printf("Do you want to remove this alias? (Y/n): ");
-                char confirmation[10];
-                if (fgets(confirmation, sizeof(confirmation), stdin) != NULL)
+                printf("Remove alias: %s", line);
+                printf("Are you sure? [Y/n] ");
+                char response[10];
+                if (fgets(response, sizeof(response), stdin))
                 {
-                    confirmation[strcspn(confirmation, "\n")] =
-                        0; // Remove newline
-                    if (strcmp(confirmation, "y") != 0
-                        && strcmp(confirmation, "Y") != 0
-                        && strcmp(confirmation, "") != 0)
+                    if (response[0] != 'y' && response[0] != 'Y' && response[0] != '\n')
                     {
-                        printf("Aborted.\n");
-                        fclose(file);
-                        return;
+                        log_info("Operation cancelled");
+                        fclose(src);
+                        fclose(dst);
+                        remove(temp_path);
+                        free(path);
+                        return SUCCESS;
                     }
                 }
             }
+            continue;
         }
+        fputs(line, dst);
     }
 
-    fclose(file);
+    fclose(src);
+    fclose(dst);
 
-    if (found)
+    if (!found)
     {
-        // Open the file again for writing
-        file = fopen(alias_file_path, "w");
-        if (file == NULL)
-        {
-            perror("Failed to open the alias file");
-            return;
-        }
-
-        // Write the lines back to the file, excluding the one containing the
-        // alias
-
-        int j = 0;
-        while (j < i)
-        {
-            if (!IsAliasInLine(lines[j], alias_name))
-            {
-                fprintf(file, "%s", lines[j]);
-            }
-            j++;
-        }
-
-        fclose(file);
-
-        if (!is_forced)
-        {
-            printf("Alias '%s' removed successfully!\n", alias_name);
-        }
+        if (!force) printf("%sNote:%s Alias '%s' not found\n", COLOR_BLUE, COLOR_RESET, name);
+        remove(temp_path);
+        free(path);
+        return SUCCESS;
     }
-    else
+
+    struct stat st;
+    if (stat(path, &st) == 0)
     {
-        printf("Alias '%s' not found.\n", alias_name);
+        chmod(temp_path, st.st_mode);
     }
+
+    if (rename(temp_path, path) != 0)
+    {
+        remove(temp_path);
+        free(path);
+        return ERR_SYSTEM;
+    }
+
+    if (!force)
+    {
+        log_success("Removed alias '%s%s%s'", COLOR_YELLOW, name, COLOR_RESET);
+    }
+    free(path);
+    return SUCCESS;
 }
 
-// Function to list all aliases
-void list_aliases()
+ErrorCode am_list(const char *filter)
 {
-    // Get the value of HOME environment variable
-    const char *home_dir = getenv("HOME");
-    if (home_dir == NULL)
+    FILE *fp = open_alias_file("r");
+    if (!fp)
     {
-        perror("Failed to get the HOME directory");
-        return;
-    }
-
-    // Construct the full path to the alias file
-    char alias_file_path[1024];
-    snprintf(alias_file_path, sizeof(alias_file_path), "%s/.my_aliases.txt",
-             home_dir);
-
-    // Open .my_aliases.txt file for reading
-    FILE *file = fopen(alias_file_path, "r");
-    if (file == NULL)
-    {
-        perror("Failed to open the alias file");
-        return;
-    }
-
-    char line[1024];
-
-    printf("Aliases:\n");
-
-    // Extract aliases from the file content
-    while (fgets(line, sizeof(line), file) != NULL)
-    {
-        if (strstr(line, "alias") == line)
+        if (errno != ENOENT)
         {
-            // print the line but without the "alias" word
-            printf("%s", line + 6);
+            log_error("Cannot read alias file");
+        }
+        return ERR_FILE_ACCESS;
+    }
+
+    char line[MAX_LINE_LENGTH];
+    int count = 0;
+    
+    while (fgets(line, sizeof(line), fp))
+    {
+        if (strstr(line, "alias ") != line) continue;
+        char *alias_def = line + 6;
+        if (!filter || strstr(alias_def, filter))
+        {
+            printf("%s", alias_def);
+            count++;
         }
     }
-    printf("\n");
-
-    fclose(file);
+    
+    fclose(fp);
+    
+    if (count == 0 && filter)
+    {
+        printf("%sNote:%s No aliases found matching '%s'\n", COLOR_BLUE, COLOR_RESET, filter);
+    }
+    
+    return SUCCESS;
 }
 
-void find_aliases(char *str)
+// Utility implementations
+const char *error_message(ErrorCode err)
 {
-    // Get the value of HOME environment variable
-    const char *home_dir = getenv("HOME");
-    if (home_dir == NULL)
-    {
-        perror("Failed to get the HOME directory");
-        return;
-    }
-
-    // Construct the full path to the alias file
-    char alias_file_path[1024];
-    snprintf(alias_file_path, sizeof(alias_file_path), "%s/.my_aliases.txt",
-             home_dir);
-
-    // Open .my_aliases.txt file for reading
-    FILE *file = fopen(alias_file_path, "r");
-    if (file == NULL)
-    {
-        perror("Failed to open the alias file");
-        return;
-    }
-
-    char line[1024];
-
-    printf("Aliases matching \"%s\": \n", str);
-
-    // Extract aliases from the file content
-    while (fgets(line, sizeof(line), file) != NULL)
-    {
-        if (strstr(line, "alias"))
-        {
-            if (strstr(line + 6, str))
-            {
-                printf("%s", line + 6);
-            }
-        }
-    }
-
-    fclose(file);
-}
-void show_version(void)
-{
-    printf("aliasmanager v%s\n", Version);
+    static const char *messages[] = { "Success",
+                                      "Invalid arguments",
+                                      "File access error",
+                                      "Memory allocation failed",
+                                      "Home directory not found",
+                                      "System error" };
+    return messages[err];
 }
 
-void show_help(void)
+bool is_valid_name(const char *name)
 {
-    show_version();
-    printf("Manage your aliases in ~/.my_aliases.txt\n\n");
-    printf("USAGE:\n");
-    printf("    am <SUBCOMMAND>\n\n");
-    printf("SUBCOMMAND:\n");
-    printf("    am add <ALIAS_NAME> <COMMAND>    add alias\n");
-    printf("    am rm <ALIAS_NAME>               remove alias\n");
-    printf("    am ls                            list all aliases\n");
-    printf("    am ls <STRING>                   list all aliases "
-           "matching <STRING>\n\n");
-    printf("FLAGS:\n");
-    printf("    -h, --help       Prints help information\n");
-    printf("    -V, --version    Prints version information\n");
+    if (!name || !*name)
+        return false;
+    if (!isalpha(name[0]) && name[0] != '_')
+        return false;
+
+    for (; *name; name++)
+    {
+        if (!isalnum(*name) && *name != '_')
+            return false;
+    }
+    return true;
 }
 
-int main(int argc, char *argv[])
+char *get_alias_file_path(void)
 {
-    if (argc < 2)
-    {
-        show_help();
-        return 1;
-    }
+    const char *home = getenv("HOME");
+    if (!home)
+        return NULL;
 
-    if (strcmp(argv[1], "add") == 0)
-    {
-        if (argc != 4)
-        {
-            printf("Usage: %s add <ALIAS_NAME> <COMMAND>\n", argv[0]);
-            return 1;
-        }
+    char *path = malloc(strlen(home) + strlen(ALIAS_FILE) + 2);
+    if (!path)
+        return NULL;
 
-        create_alias(argv[2], argv[3]);
-    }
-    else if (strcmp(argv[1], "rm") == 0)
-    {
-        if (argc < 3)
-        {
-            printf("Usage: %s rm <ALIAS_NAME>\n", argv[0]);
-            return 1;
-        }
-
-        int is_forced = 0;
-        if ((argc == 4 && strcmp(argv[3], "--force") == 0)
-            || (argc == 4 && strcmp(argv[3], "-f") == 0))
-        {
-            is_forced = 1;
-        }
-
-        remove_alias(argv[2], is_forced);
-    }
-    else if (strcmp(argv[1], "ls") == 0)
-    {
-        if (argc > 3)
-        {
-            printf("Usage: %s ls [STRING]\n", argv[0]);
-            return 1;
-        }
-        if (argc == 2)
-        {
-            list_aliases();
-        }
-        if (argc == 3)
-        {
-            find_aliases(argv[2]);
-        }
-    }
-    else if (strcmp(argv[1], "--help") == 0 || strcmp(argv[1], "-h") == 0)
-    {
-        show_help();
-        return 0;
-    }
-    else if (strcmp(argv[1], "--version") == 0 || strcmp(argv[1], "-V") == 0)
-    {
-        show_version();
-        return 0;
-    }
-    else
-    {
-        printf("Unknown subcommand '%s'\n", argv[1]);
-        printf("Usage: %s <SUBCOMMAND> <ARGS>\n", argv[0]);
-        printf("\nConsider using '%s -h | --help' for more information\n",
-               argv[0]);
-        return 1;
-    }
-
-    return 0;
+    sprintf(path, "%s/%s", home, ALIAS_FILE);
+    return path;
 }

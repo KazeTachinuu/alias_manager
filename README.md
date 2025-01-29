@@ -1,95 +1,84 @@
+# Alias Manager (am)
 
-# Alias Manager
-
-Alias Manager is a simple command-line tool written in C for managing aliases in your shell. It supports adding, listing and removing aliases in your shell
-
-## Features
-
-- Add new aliases with custom commands
-- List existing aliases
-- Remove aliases by name
+> A lightweight CLI tool to manage your shell aliases efficiently
 
 
-## Installation
 
+## 🚀 Features
 
-1. Clone this repository to your local machine:
+- ✨ Create and update aliases with a simple command
+- 🗑️ Remove aliases safely (with confirmation)
+- 📋 List all your aliases
+- 🔍 Search aliases by pattern
+- 💪 Works with any POSIX-compliant shell (bash, zsh, fish)
 
+## 📦 Installation
 
-```shell
+### From Source
+
+```bash
+# Clone the repository
 git clone https://github.com/kazetachinuu/alias_manager.git
+
+# Navigate to the directory
 cd alias_manager
+
+# Build and install
+make
+sudo make install
+
+# Add to your shell configuration
+echo '[[ -f ~/.my_aliases.txt ]] && source ~/.my_aliases.txt' >> ~/.bashrc  # For bash
+# OR
+echo '[[ -f ~/.my_aliases.txt ]] && source ~/.my_aliases.txt' >> ~/.zshrc   # For zsh
 ```
 
-2. Install the Alias Manager binary by running the install script:
+### Package Managers
 
-```shell
-./install.sh
+Coming soon...
+
+## 🎯 Quick Start
+
+```bash
+# Create a new alias
+am add gl git log --oneline --graph
+
+# List all aliases
+am ls
+
+# Search for git-related aliases
+am ls git
+
+# Remove an alias (with confirmation)
+am rm gl
+
+# Remove an alias (force)
+am rm gl -f
+
+# Show help
+am help
 ```
 
+## 📖 Command Reference
+
+| Command | Description | Example |
+|---------|-------------|---------|
+| `add <name> <command...>` | Create or update an alias | `am add gc git commit -m` |
+| `rm <name> [-f]` | Remove an alias | `am rm gc` |
+| `ls [pattern]` | List all aliases or filter by pattern | `am ls git` |
+| `help` | Show help message | `am help` |
+| `version` | Show version | `am version` |
 
 
-## Usage
+## 📄 License
 
-Alias Manager provides several subcommands for managing aliases. Here's a summary of the available subcommands:
-
-
-
-```sh
-am [SUBCOMMAND] [ARGS]
-```
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
 
-### Subcommands:
+## 📝 TODO
 
-- `add`: Add a new alias with a custom command.
-
-
-```sh
-am add <ALIAS_NAME> <COMMAND>
-```
-
-
-- `ls`: List all existing aliases with optionnal matching string.
-
-
-```sh
-am ls [STRING]
-```
-
-- `rm`: Remove an alias by name.
-
-```sh
-am rm  <ALIAS_NAME> [-f|--force]
-```
-### Example
-
-```sh
-$ am add gp "git push"
-$ am ls git
-
-Aliases matching "git":
-gca='git commit -a -m'
-gs='git status'
-gp='git push'
-gpl='git pull'
-gpt='git push --follow-tags'
-```
-### Options:
-
-- `-V, --version`: Prints version information
-- `-h, --help`: Prints help information for the subcommand.
-
-
-
-Note: The alias names are case-sensitive, so make sure to provide the correct case when using alias names.
-
-
-## Contributing
-
-Contributions are welcome! If you would like to contribute to the Alias Manager project, please open an issue or submit a pull request on GitHub.
-
-## License
-
-This project is licensed under the [MIT License](LICENSE).
+- [ ] Add package manager support (apt, brew, etc.)
+- [ ] Add alias backup/restore functionality
+- [ ] Add shell completion scripts
+- [ ] Support for alias categories/groups
 

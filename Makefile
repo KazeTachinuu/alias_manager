@@ -1,13 +1,20 @@
-CC=gcc
+CC = gcc
+CFLAGS = -Wall -Wextra -pedantic -std=c11
+PREFIX = /usr/local
 
-SRC = aliasmanager.o
-BIN = aliasmanager
+.PHONY: all clean install
 
-all: ${BIN}
+all: am
 
-BIN: ${SRC}
+am: aliasmanager.o main.o
+	$(CC) $(CFLAGS) -o $@ $^
+
+%.o: %.c alias_manager.h
+	$(CC) $(CFLAGS) -c -o $@ $<
+
+install: am
+	install -d $(DESTDIR)$(PREFIX)/bin
+	install -m 755 am $(DESTDIR)$(PREFIX)/bin/am
 
 clean:
-	${RM} *.o ${BIN}
-
-.PHONY: all, clean
+	rm -f *.o am
