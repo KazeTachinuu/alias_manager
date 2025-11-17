@@ -1,6 +1,7 @@
 VERSION = 2.1.0
 CC ?= gcc
-CFLAGS ?= -Wall -Wextra -pedantic -std=c11 -DVERSION='"$(VERSION)"'
+CFLAGS ?= -Wall -Wextra -pedantic -std=c11
+CFLAGS += -DVERSION='"$(VERSION)"'
 LDFLAGS ?=
 PREFIX ?= /usr/local
 DESTDIR =
