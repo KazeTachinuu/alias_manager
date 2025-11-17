@@ -18,38 +18,73 @@
 
 ## Installation
 
+### Arch Linux
+
+```bash
+# Using an AUR helper (recommended)
+yay -S alias-manager
+
+# Or with paru
+paru -S alias-manager
+
+# Manual installation from AUR
+git clone https://aur.archlinux.org/alias-manager.git
+cd alias-manager
+makepkg -si
+```
+
+### macOS / Linux (Homebrew)
+
+```bash
+# Install from tap
+brew install kazetachinuu/alias-manager/alias-manager
+
+# Or add tap first, then install
+brew tap kazetachinuu/alias-manager
+brew install alias-manager
+```
+
+### Debian / Ubuntu
+
+```bash
+# Download the latest .deb package
+wget https://github.com/kazetachinuu/alias_manager/releases/download/v2.1.0/alias-manager_2.1.0_amd64.deb
+
+# Install with dpkg
+sudo dpkg -i alias-manager_2.1.0_amd64.deb
+
+# Or install with apt to handle dependencies
+sudo apt install ./alias-manager_2.1.0_amd64.deb
+```
+
 ### From Source
 
 ```bash
 # Clone and build
 git clone https://github.com/kazetachinuu/alias_manager.git
 cd alias_manager
-make && sudo make install
+make
 
-# Setup shell integration (auto-detects your shell)
+# Install system-wide
+sudo make install
+
+# Or install to your home directory
+make PREFIX=$HOME/.local install
+```
+
+### Post-Installation Setup
+
+After installing via any method, set up shell integration:
+
+```bash
+# Auto-detect your shell and setup
 eval "$(am init)"
 
-# Or add to your shell config for persistence:
+# Make it permanent by adding to your shell config:
 echo 'eval "$(am init)"' >> ~/.bashrc   # For bash
 echo 'eval "$(am init)"' >> ~/.zshrc   # For zsh
 am init fish >> ~/.config/fish/config.fish  # For fish
 ```
-
-### Arch Linux (AUR)
-
-```bash
-# Using an AUR helper like yay
-yay -S alias-manager
-
-# Or manually
-git clone https://aur.archlinux.org/alias-manager.git
-cd alias-manager
-makepkg -si
-```
-
-### Other Package Managers
-
-Coming soon...
 
 ## Quick Start
 
@@ -97,10 +132,11 @@ For detailed information, see the man page: `man am`
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
 
-## TODO
+## Roadmap
 
-- [ ] Add package manager support (apt, brew, etc.)
 - [ ] Add alias backup/restore functionality
-- [ ] Add shell completion scripts
+- [ ] Add shell completion scripts (bash, zsh, fish)
 - [ ] Support for alias categories/groups
+- [ ] RPM packages for Fedora/RHEL
+- [ ] Snap/Flatpak packages
 
