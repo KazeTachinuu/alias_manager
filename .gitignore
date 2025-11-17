@@ -60,3 +60,4 @@ modules.order
 Module.symvers
 Mkfile.old
 dkms.conf
+alias-manager/
