@@ -4,19 +4,19 @@
 
 
 
-## 🚀 Features
+## Features
 
-- ✨ Create and update aliases with a simple command
-- 🗑️ Remove aliases safely (with confirmation)
-- 📋 List all your aliases
-- 🔍 Search aliases by pattern
-- 💪 Works with any POSIX-compliant shell (bash, zsh, fish)
-- 🎨 Smart color output (auto-detects TTY)
-- 📖 Comprehensive man page
-- 🔒 Memory-safe implementation (no malloc)
-- ⚡ Zero dependencies (only libc)
+- Create and update aliases with a simple command
+- Remove aliases safely (with confirmation)
+- List all your aliases
+- Search aliases by pattern
+- Works with any POSIX-compliant shell (bash, zsh, fish)
+- Smart color output (auto-detects TTY)
+- Comprehensive man page
+- Memory-safe implementation (no malloc)
+- Zero dependencies (only libc)
 
-## 📦 Installation
+## Installation
 
 ### From Source
 
@@ -51,7 +51,7 @@ makepkg -si
 
 Coming soon...
 
-## 🎯 Quick Start
+## Quick Start
 
 ```bash
 # Setup (run once)
@@ -78,7 +78,7 @@ am rm gl -f
 am help
 ```
 
-## 📖 Command Reference
+## Command Reference
 
 | Command | Description | Example |
 |---------|-------------|---------|
@@ -92,12 +92,12 @@ am help
 For detailed information, see the man page: `man am`
 
 
-## 📄 License
+## License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
 
-## 📝 TODO
+## TODO
 
 - [ ] Add package manager support (apt, brew, etc.)
 - [ ] Add alias backup/restore functionality
