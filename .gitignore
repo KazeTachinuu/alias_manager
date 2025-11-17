@@ -1,8 +1,9 @@
-#Clion
 .idea
-
 am
-
+pkg/
+src/
+*.pkg.tar.*
+*.tar.gz
 
 # Prerequisites
 *.d

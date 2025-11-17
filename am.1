@@ -1,0 +1,117 @@
+.TH AM 1 "November 2024" "2.1.0" "Alias Manager Manual"
+.SH NAME
+am \- manage shell aliases efficiently
+.SH SYNOPSIS
+.B am
+.I command
+[\fIoptions\fR]
+.SH DESCRIPTION
+.B am
+is a lightweight command-line tool for managing shell aliases. It provides a simple interface to add, remove, and list aliases stored in
+.IR ~/.my_aliases.txt .
+.SH COMMANDS
+.TP
+.BR "init " [\fIshell\fR]
+Output shell configuration for the specified shell (bash, zsh, or fish).
+If no shell is specified, auto-detects from the $SHELL environment variable.
+Use with
+.BR "eval \"$(am init)\"" .
+.TP
+.BR "add " \fIname\fR " " \fIcommand\fR...
+Create or update an alias. If an alias with the same name exists, it will be replaced.
+.TP
+.BR "rm " \fIname\fR " " [\fI-f\fR]
+Remove an alias. Without
+.IR -f ,
+prompts for confirmation.
+.TP
+.BR "ls " [\fIpattern\fR]
+List all aliases, or filter by pattern if provided.
+.TP
+.B help
+Show help message.
+.TP
+.B version
+Show version information.
+.SH OPTIONS
+.TP
+.B \-\-help
+Display help message (same as
+.BR "help" ).
+.TP
+.B \-\-version
+Display version information (same as
+.BR "version" ).
+.TP
+.B \-f
+Force operation without confirmation (for
+.BR rm " command)."
+.SH FILES
+.TP
+.I ~/.my_aliases.txt
+Default file where aliases are stored.
+.SH EXAMPLES
+.TP
+Setup shell integration (run once):
+.B eval "$(am init)"
+.TP
+Create an alias for git log:
+.B am add gl git log \-\-oneline \-\-graph
+.TP
+List all aliases:
+.B am ls
+.TP
+Search for git-related aliases:
+.B am ls git
+.TP
+Remove an alias with confirmation:
+.B am rm gl
+.TP
+Remove an alias without confirmation:
+.B am rm gl \-f
+.TP
+Setup for a specific shell:
+.B am init bash >> ~/.bashrc
+.SH EXIT STATUS
+.TP
+.B 0
+Success
+.TP
+.B 1
+Invalid arguments
+.TP
+.B 2
+File access error
+.TP
+.B 3
+Home directory not found
+.TP
+.B 4
+System error
+.SH SHELL INTEGRATION
+The recommended way to integrate with your shell is to use the init command:
+.PP
+.RS
+.B eval "$(am init)"
+.RE
+.PP
+To make it permanent, add this line to your shell configuration file:
+.PP
+.RS
+.B Bash:
+echo 'eval "$(am init)"' >> ~/.bashrc
+.br
+.B Zsh:
+echo 'eval "$(am init)"' >> ~/.zshrc
+.br
+.B Fish:
+am init fish >> ~/.config/fish/config.fish
+.RE
+.SH AUTHOR
+Hugo Sibony
+.SH LICENSE
+MIT License
+.SH SEE ALSO
+.BR bash (1),
+.BR zsh (1),
+.BR alias (1)

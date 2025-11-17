@@ -11,37 +11,56 @@
 - 📋 List all your aliases
 - 🔍 Search aliases by pattern
 - 💪 Works with any POSIX-compliant shell (bash, zsh, fish)
+- 🎨 Smart color output (auto-detects TTY)
+- 📖 Comprehensive man page
+- 🔒 Memory-safe implementation (no malloc)
+- ⚡ Zero dependencies (only libc)
 
 ## 📦 Installation
 
 ### From Source
 
 ```bash
-# Clone the repository
+# Clone and build
 git clone https://github.com/kazetachinuu/alias_manager.git
-
-# Navigate to the directory
 cd alias_manager
+make && sudo make install
 
-# Build and install
-make
-sudo make install
+# Setup shell integration (auto-detects your shell)
+eval "$(am init)"
 
-# Add to your shell configuration
-echo '[[ -f ~/.my_aliases.txt ]] && source ~/.my_aliases.txt' >> ~/.bashrc  # For bash
-# OR
-echo '[[ -f ~/.my_aliases.txt ]] && source ~/.my_aliases.txt' >> ~/.zshrc   # For zsh
+# Or add to your shell config for persistence:
+echo 'eval "$(am init)"' >> ~/.bashrc   # For bash
+echo 'eval "$(am init)"' >> ~/.zshrc   # For zsh
+am init fish >> ~/.config/fish/config.fish  # For fish
 ```
 
-### Package Managers
+### Arch Linux (AUR)
+
+```bash
+# Using an AUR helper like yay
+yay -S alias-manager
+
+# Or manually
+git clone https://aur.archlinux.org/alias-manager.git
+cd alias-manager
+makepkg -si
+```
+
+### Other Package Managers
 
 Coming soon...
 
 ## 🎯 Quick Start
 
 ```bash
-# Create a new alias
+# Setup (run once)
+eval "$(am init)"
+
+# Create aliases
 am add gl git log --oneline --graph
+am add gc git commit -m
+am add gs git status
 
 # List all aliases
 am ls
@@ -52,10 +71,10 @@ am ls git
 # Remove an alias (with confirmation)
 am rm gl
 
-# Remove an alias (force)
+# Remove an alias (force, no confirmation)
 am rm gl -f
 
-# Show help
+# Get help
 am help
 ```
 
@@ -63,11 +82,14 @@ am help
 
 | Command | Description | Example |
 |---------|-------------|---------|
+| `init [shell]` | Output shell configuration | `eval "$(am init)"` |
 | `add <name> <command...>` | Create or update an alias | `am add gc git commit -m` |
 | `rm <name> [-f]` | Remove an alias | `am rm gc` |
 | `ls [pattern]` | List all aliases or filter by pattern | `am ls git` |
-| `help` | Show help message | `am help` |
-| `version` | Show version | `am version` |
+| `help` / `--help` | Show help message | `am help` |
+| `version` / `--version` | Show version | `am version` |
+
+For detailed information, see the man page: `man am`
 
 
 ## 📄 License
