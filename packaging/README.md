@@ -1,74 +1,54 @@
 # Package Management
 
-This directory contains packaging files and scripts for different package managers.
+This directory contains packaging configurations and build scripts for different platforms.
 
 ## Directory Structure
 
 ```
 packaging/
-├── debian/          # Debian/Ubuntu .deb packages
+├── deb/             # Debian/Ubuntu packages
 │   ├── control      # Package metadata
-│   └── build-deb.sh # Build script
-├── homebrew/        # Homebrew formula (maintained in separate repo)
-│   └── README.md    # Instructions
-└── arch/            # Arch Linux (AUR, maintained separately)
-    └── README.md    # Instructions
+│   └── build.sh     # Build script
+├── arch/            # Arch Linux documentation
+│   └── README.md    # AUR packaging guide
+├── homebrew/        # Homebrew documentation
+│   └── README.md    # Tap repository guide
+├── build-all.sh     # Master build script
+└── README.md        # This file
 ```
 
-## Building Packages
+**Note:** Actual packaging files for Arch Linux (PKGBUILD, .SRCINFO) are in the project root, as per AUR conventions.
 
-### Debian/Ubuntu (.deb)
+## Quick Build
 
 ```bash
-# On a Debian/Ubuntu system:
-./packaging/debian/build-deb.sh
+# Build all packages (where possible)
+./packaging/build-all.sh
 
-# Output: packaging/debian/alias-manager_2.1.0_amd64.deb
+# Build specific package
+./packaging/deb/build.sh          # Debian/Ubuntu (requires dpkg-deb)
 ```
+
+## Platform-Specific Instructions
 
 ### Arch Linux (AUR)
 
-The AUR package is maintained at: https://aur.archlinux.org/packages/alias-manager
+See: `packaging/arch/README.md` or root PKGBUILD/. SRCINFO
 
-Files: `PKGBUILD` and `.SRCINFO` in the root directory.
-
-To update:
-```bash
-# Update PKGBUILD version and sha256sum
-makepkg --printsrcinfo > .SRCINFO
-# Push to AUR repository
-```
+**Location:** https://aur.archlinux.org/packages/alias-manager
 
 ### Homebrew
 
-The Homebrew formula is maintained in a separate tap repository:
-https://github.com/kazetachinuu/homebrew-alias-manager
+See: `packaging/homebrew/README.md`
 
-To update:
-```bash
-# Update Formula/alias-manager.rb with new version and sha256
-# Push to homebrew tap repository
-```
+**Repository:** https://github.com/kazetachinuu/homebrew-alias-manager
 
-## Release Checklist
+### Debian/Ubuntu
 
-When releasing a new version:
+See: `packaging/deb/`
 
-1. **Update version** in `Makefile`
-2. **Update version** in `PKGBUILD`
-3. **Update version** in `am.1` man page
-4. **Commit changes** and create git tag
-5. **Create GitHub release**
-6. **Update Homebrew formula** with new version and sha256
-7. **Build .deb package** and attach to GitHub release
-8. **Update AUR package** with new sha256sum
-9. **Test installations** from all package managers
+Build with: `./packaging/deb/build.sh`
 
-## Version Management
+## Release Workflow
 
-All version numbers are defined in:
-- `Makefile` (line 1): `VERSION = X.Y.Z`
-- `PKGBUILD` (line 3): `pkgver=X.Y.Z`
-- `am.1` (line 1): `.TH AM 1 "Month Year" "X.Y.Z"`
-
-Keep these synchronized!
+See `PACKAGING.md` in the project root for the complete release workflow and version management guide.

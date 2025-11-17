@@ -3,14 +3,15 @@
 
 set -e
 
-VERSION="2.1.0"
+# Get version from Makefile
+VERSION=$(grep "^VERSION = " Makefile | cut -d' ' -f3)
 PKGNAME="alias-manager"
-BUILDDIR="deb-build/${PKGNAME}_${VERSION}"
+BUILDDIR="build-deb/${PKGNAME}_${VERSION}"
 
 echo "Building ${PKGNAME} ${VERSION} .deb package..."
 
 # Clean previous builds
-rm -rf deb-build
+rm -rf build-deb
 mkdir -p "${BUILDDIR}/DEBIAN"
 mkdir -p "${BUILDDIR}/usr/bin"
 mkdir -p "${BUILDDIR}/usr/share/man/man1"
@@ -26,12 +27,13 @@ cp am.1 "${BUILDDIR}/usr/share/man/man1/"
 gzip -9 "${BUILDDIR}/usr/share/man/man1/am.1"
 cp LICENSE "${BUILDDIR}/usr/share/doc/${PKGNAME}/"
 cp README.md "${BUILDDIR}/usr/share/doc/${PKGNAME}/"
-cp packaging/debian/control "${BUILDDIR}/DEBIAN/"
+cp packaging/deb/control "${BUILDDIR}/DEBIAN/"
 
 # Build package
 dpkg-deb --build --root-owner-group "${BUILDDIR}"
 
 # Move to packaging directory
-mv "${BUILDDIR}.deb" "packaging/debian/${PKGNAME}_${VERSION}_amd64.deb"
+mkdir -p packaging/deb
+mv "${BUILDDIR}.deb" "packaging/deb/${PKGNAME}_${VERSION}_amd64.deb"
 
-echo "✓ Package built: packaging/debian/${PKGNAME}_${VERSION}_amd64.deb"
+echo "✓ Package built: packaging/deb/${PKGNAME}_${VERSION}_amd64.deb"
