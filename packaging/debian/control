@@ -1,0 +1,17 @@
+Package: alias-manager
+Version: 2.1.0
+Section: utils
+Priority: optional
+Architecture: amd64
+Maintainer: Hugo Sibony <kazetachinuu@protonmail.com>
+Description: Lightweight CLI tool to manage shell aliases
+ A lightweight CLI tool to manage your shell aliases efficiently.
+ .
+ Features:
+  - Create and update aliases with a simple command
+  - Remove aliases safely (with confirmation)
+  - List and search aliases
+  - Works with any POSIX-compliant shell (bash, zsh, fish)
+  - Smart color output (auto-detects TTY)
+  - Memory-safe implementation (no malloc)
+  - Zero dependencies (only libc)
