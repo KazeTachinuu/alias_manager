@@ -1,4 +1,4 @@
-VERSION = 2.1.3
+VERSION = 2.2.0
 CC ?= gcc
 CFLAGS ?= -Wall -Wextra -pedantic -std=c11
 CFLAGS += -DVERSION='"$(VERSION)"'
