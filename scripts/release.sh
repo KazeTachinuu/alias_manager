@@ -97,14 +97,23 @@ echo -e "  ${GREEN}✓${NC} Pushed"
 
 # Wait for GitHub Actions
 echo -e "\n${BLUE}Step 6: Waiting for GitHub Actions to create release...${NC}"
-echo "  This usually takes 2-3 minutes..."
-sleep 30
-echo -n "  Checking"
-for i in {1..6}; do
-    sleep 15
+TIMEOUT=180
+INTERVAL=10
+ELAPSED=0
+echo -n "  Waiting"
+while [ $ELAPSED -lt $TIMEOUT ]; do
+    if gh release view "v$NEW_VERSION" &>/dev/null; then
+        echo -e "\n  ${GREEN}✓${NC} Release v$NEW_VERSION is available"
+        break
+    fi
     echo -n "."
+    sleep $INTERVAL
+    ELAPSED=$((ELAPSED + INTERVAL))
 done
-echo ""
+
+if [ $ELAPSED -ge $TIMEOUT ]; then
+    echo -e "\n  ${YELLOW}!${NC} Timeout - check manually: gh release view v$NEW_VERSION"
+fi
 
 # Get SHA256
 echo -e "\n${BLUE}Step 7: Fetching release tarball and calculating SHA256...${NC}"

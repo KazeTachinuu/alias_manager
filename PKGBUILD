@@ -2,7 +2,7 @@
 pkgname=alias-manager
 pkgver=2.2.0
 pkgrel=1
-pkgdesc="A lightweight CLI tool to manage your shell aliases efficiently"
+pkgdesc="Lightweight CLI tool for managing shell aliases"
 arch=('x86_64' 'i686' 'aarch64' 'armv7h')
 url="https://github.com/kazetachinuu/alias_manager"
 license=('MIT')

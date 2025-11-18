@@ -1,5 +1,5 @@
 pkgbase = alias-manager
-	pkgdesc = A lightweight CLI tool to manage your shell aliases efficiently
+	pkgdesc = Lightweight CLI tool for managing shell aliases
 	pkgver = 2.2.0
 	pkgrel = 1
 	url = https://github.com/kazetachinuu/alias_manager
