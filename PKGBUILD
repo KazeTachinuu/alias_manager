@@ -9,7 +9,7 @@ license=('MIT')
 depends=('glibc')
 makedepends=('gcc' 'make')
 source=("$pkgname-$pkgver.tar.gz::$url/archive/v$pkgver.tar.gz")
-sha256sums=('118a199775cc4cf2e637c88d975c8c83fd317fb34710ed6eab48a981104181a0')
+sha256sums=('5cbc443adb31552d6d1b73c857c6d62be390aa9ee8b16d4c49aa4893f03fd374')
 
 build() {
     cd "alias_manager-$pkgver"
