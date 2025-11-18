@@ -18,9 +18,8 @@ jobs:
       - name: Build .deb package
         run: |
           set -euo pipefail
-          cd packaging/deb
-          ./build.sh
-          if [ ! -f *.deb ]; then
+          ./packaging/deb/build.sh
+          if [ ! -f packaging/deb/*.deb ]; then
             echo "Error: .deb file not produced"
             exit 1
           fi
