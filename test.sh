@@ -105,44 +105,107 @@ expect_failure $? "Invalid command fails" || true
 echo
 echo "=== Init Command Behavior ==="
 
-# Test: Init produces executable shell code for bash
-INIT_BASH=$(./am init bash)
+# Test: Init --hook produces executable shell code for bash
+INIT_BASH=$(./am init --hook bash)
 if [ $? -eq 0 ] && [ -n "$INIT_BASH" ]; then
     # Verify it's valid bash syntax
     bash -n <(echo "$INIT_BASH") 2>/dev/null
-    expect_success $? "Init bash produces valid bash syntax" || true
+    expect_success $? "Init --hook bash produces valid bash syntax" || true
 else
-    fail "Init bash produces valid bash syntax"
+    fail "Init --hook bash produces valid bash syntax"
 fi
 
-# Test: Init produces executable shell code for zsh
-INIT_ZSH=$(./am init zsh)
+# Test: Init --hook produces executable shell code for zsh
+INIT_ZSH=$(./am init --hook zsh)
 if [ $? -eq 0 ] && [ -n "$INIT_ZSH" ]; then
     # ZSH is bash-compatible enough for syntax check
     bash -n <(echo "$INIT_ZSH") 2>/dev/null
-    expect_success $? "Init zsh produces valid syntax" || true
+    expect_success $? "Init --hook zsh produces valid syntax" || true
 else
-    fail "Init zsh produces valid syntax"
+    fail "Init --hook zsh produces valid syntax"
 fi
 
-# Test: Init produces executable shell code for fish
-INIT_FISH=$(./am init fish)
+# Test: Init --hook produces executable shell code for fish
+INIT_FISH=$(./am init --hook fish)
 if [ $? -eq 0 ] && [ -n "$INIT_FISH" ]; then
     # Just check it produces output (can't syntax check fish easily)
-    pass "Init fish produces output"
+    pass "Init --hook fish produces output"
 else
-    fail "Init fish produces output"
+    fail "Init --hook fish produces output"
 fi
 
 # Test: Init with invalid shell fails
-./am init not_a_real_shell >/dev/null 2>&1
-expect_failure $? "Init with invalid shell fails" || true
+./am init --hook not_a_real_shell >/dev/null 2>&1
+expect_failure $? "Init --hook with invalid shell fails" || true
 
 # Test: Init code uses runtime XDG check (contains the expansion pattern)
 if echo "$INIT_BASH" | grep -q '\${XDG_CONFIG_HOME:-'; then
-    pass "Init uses runtime XDG_CONFIG_HOME check"
+    pass "Init --hook uses runtime XDG_CONFIG_HOME check"
 else
-    fail "Init uses runtime XDG_CONFIG_HOME check"
+    fail "Init --hook uses runtime XDG_CONFIG_HOME check"
+fi
+
+echo
+echo "=== Reload Command Behavior ==="
+
+# Test: Reload produces executable shell code for bash
+RELOAD_BASH=$(./am reload bash)
+if [ $? -eq 0 ] && [ -n "$RELOAD_BASH" ]; then
+    bash -n <(echo "$RELOAD_BASH") 2>/dev/null
+    expect_success $? "Reload bash produces valid bash syntax" || true
+else
+    fail "Reload bash produces valid bash syntax"
+fi
+
+# Test: Reload produces executable shell code for zsh
+RELOAD_ZSH=$(./am reload zsh)
+if [ $? -eq 0 ] && [ -n "$RELOAD_ZSH" ]; then
+    bash -n <(echo "$RELOAD_ZSH") 2>/dev/null
+    expect_success $? "Reload zsh produces valid syntax" || true
+else
+    fail "Reload zsh produces valid syntax"
+fi
+
+# Test: Reload produces executable shell code for fish
+RELOAD_FISH=$(./am reload fish)
+if [ $? -eq 0 ] && [ -n "$RELOAD_FISH" ]; then
+    pass "Reload fish produces output"
+else
+    fail "Reload fish produces output"
+fi
+
+# Test: Reload with invalid shell fails
+./am reload not_a_real_shell >/dev/null 2>&1
+expect_failure $? "Reload with invalid shell fails" || true
+
+echo
+echo "=== List Command Tests ==="
+
+# Test: List with no alias file shows helpful message
+rm -f "$TEST_ALIAS_FILE"
+NO_FILE_OUT=$(./am ls 2>&1)
+if [ $? -eq 0 ] && echo "$NO_FILE_OUT" | grep -qi "no aliases yet"; then
+    pass "List with no file shows helpful message"
+else
+    fail "List with no file shows helpful message"
+fi
+
+# Test: List with empty file
+touch "$TEST_ALIAS_FILE"
+LIST_EMPTY=$(./am ls 2>&1)
+if [ $? -eq 0 ] && [ -z "$LIST_EMPTY" ]; then
+    pass "List with empty file shows nothing"
+else
+    fail "List with empty file shows nothing"
+fi
+
+# Test: Filter with no matches shows helpful message
+./am add something "echo test" >/dev/null 2>&1
+NO_MATCH=$(./am ls nonexistent 2>&1)
+if echo "$NO_MATCH" | grep -qi "no aliases found"; then
+    pass "Filter with no matches shows helpful message"
+else
+    fail "Filter with no matches shows helpful message"
 fi
 
 echo
@@ -175,19 +238,45 @@ else
     fail "List shows added alias"
 fi
 
-# Test: Search filters aliases
+# Test: List output format is correct (name='command')
+if echo "$LIST_OUT" | grep -qE "^testcmd='echo test'$"; then
+    pass "List output format is correct"
+else
+    fail "List output format is correct"
+fi
+
+# Test: Search filters aliases by name
 ./am add another "echo other" >/dev/null 2>&1
 SEARCH_OUT=$(./am ls test)
 if echo "$SEARCH_OUT" | grep -q "testcmd" && \
    echo "$SEARCH_OUT" | grep -qv "another"; then
-    pass "Search filters by pattern"
+    pass "Search filters by alias name"
 else
-    fail "Search filters by pattern"
+    fail "Search filters by alias name"
+fi
+
+# Test: Search matches command content too
+./am add myalias "echo testword" >/dev/null 2>&1
+SEARCH_CMD=$(./am ls testword)
+if echo "$SEARCH_CMD" | grep -q "myalias"; then
+    pass "Search matches command content"
+else
+    fail "Search matches command content"
+fi
+
+# Test: Search is case-sensitive
+./am add UPPERCASE "echo caps" >/dev/null 2>&1
+SEARCH_CASE=$(./am ls upper)
+if echo "$SEARCH_CASE" | grep -qv "UPPERCASE"; then
+    pass "Search is case-sensitive"
+else
+    fail "Search is case-sensitive"
 fi
 
 # Test: Update replaces command
 ./am add testcmd "echo updated" >/dev/null 2>&1
-if file_contains "echo updated" && file_not_contains "echo test"; then
+if grep -q "^alias testcmd='echo updated'$" "$TEST_ALIAS_FILE" 2>/dev/null && \
+   ! grep -q "^alias testcmd='echo test'$" "$TEST_ALIAS_FILE" 2>/dev/null; then
     pass "Update replaces old command"
 else
     fail "Update replaces old command"

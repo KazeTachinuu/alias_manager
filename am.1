@@ -1,4 +1,4 @@
-.TH AM 1 "November 2024" "2.1.0" "Alias Manager Manual"
+.TH AM 1 "November 2025" "2.1.2" "Alias Manager Manual"
 .SH NAME
 am \- manage shell aliases efficiently
 .SH SYNOPSIS
@@ -8,14 +8,16 @@ am \- manage shell aliases efficiently
 .SH DESCRIPTION
 .B am
 is a lightweight command-line tool for managing shell aliases. It provides a simple interface to add, remove, and list aliases stored in
-.IR ~/.my_aliases.txt .
+.IR ~/.config/am/aliases.txt .
 .SH COMMANDS
 .TP
 .BR "init " [\fIshell\fR]
-Output shell configuration for the specified shell (bash, zsh, or fish).
-If no shell is specified, auto-detects from the $SHELL environment variable.
-Use with
-.BR "eval \"$(am init)\"" .
+Interactive setup that adds alias loading to your shell configuration file.
+Auto-detects the shell from $SHELL if not specified.
+Use
+.B "init --hook"
+to output only the shell code for manual integration.
+Supported shells: bash, zsh, fish.
 .TP
 .BR "add " \fIname\fR " " \fIcommand\fR...
 Create or update an alias. If an alias with the same name exists, it will be replaced.
@@ -27,6 +29,12 @@ prompts for confirmation.
 .TP
 .BR "ls " [\fIpattern\fR]
 List all aliases, or filter by pattern if provided.
+The pattern matches both alias names and commands.
+.TP
+.BR "reload " [\fIshell\fR]
+Output the command to reload aliases in the current shell.
+Use with
+.BR "eval $(am reload)" .
 .TP
 .B help
 Show help message.
@@ -50,16 +58,13 @@ Force operation without confirmation (for
 The alias file location is determined by the following priority:
 .TP
 .I $AM_ALIAS_FILE
-Custom alias file path (highest priority).
+Custom alias file path (highest priority). Useful for testing or custom setups.
 .TP
 .I $XDG_CONFIG_HOME/am/aliases.txt
 XDG standard configuration location if XDG_CONFIG_HOME is set.
 .TP
 .I ~/.config/am/aliases.txt
 Default XDG configuration location.
-.TP
-.I ~/.my_aliases.txt
-Legacy location (used if it already exists).
 .SH ENVIRONMENT
 .TP
 .B AM_ALIAS_FILE
@@ -70,8 +75,8 @@ Standard XDG configuration directory. If set, aliases are stored in
 .IR $XDG_CONFIG_HOME/am/aliases.txt .
 .SH EXAMPLES
 .TP
-Setup shell integration (run once):
-.B eval "$(am init)"
+Interactive setup (run once):
+.B am init
 .TP
 Create an alias for git log:
 .B am add gl git log \-\-oneline \-\-graph
@@ -82,14 +87,17 @@ List all aliases:
 Search for git-related aliases:
 .B am ls git
 .TP
+Reload aliases in current shell:
+.B eval "$(am reload)"
+.TP
 Remove an alias with confirmation:
 .B am rm gl
 .TP
 Remove an alias without confirmation:
 .B am rm gl \-f
 .TP
-Setup for a specific shell:
-.B am init bash >> ~/.bashrc
+Manual shell integration (alternative to interactive setup):
+.B eval "$(am init --hook)" >> ~/.bashrc
 .SH EXIT STATUS
 .TP
 .B 0
@@ -107,23 +115,25 @@ Home directory not found
 .B 4
 System error
 .SH SHELL INTEGRATION
-The recommended way to integrate with your shell is to use the init command:
+The recommended way to integrate with your shell is to use the interactive init command:
 .PP
 .RS
-.B eval "$(am init)"
+.B am init
 .RE
 .PP
-To make it permanent, add this line to your shell configuration file:
+This will automatically detect your shell and add the necessary configuration to your shell's RC file.
+.PP
+For manual integration, you can use the --hook flag:
 .PP
 .RS
 .B Bash:
-echo 'eval "$(am init)"' >> ~/.bashrc
+eval "$(am init --hook)" in ~/.bashrc
 .br
 .B Zsh:
-echo 'eval "$(am init)"' >> ~/.zshrc
+eval "$(am init --hook)" in ~/.zshrc
 .br
 .B Fish:
-am init fish >> ~/.config/fish/config.fish
+am init --hook fish | source in ~/.config/fish/config.fish
 .RE
 .SH AUTHOR
 Hugo Sibony

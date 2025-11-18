@@ -9,28 +9,29 @@
 ## Features
 
 - **Simple**: Add, remove, and list aliases with easy commands
+- **Helpful**: Clear hints guide you to reload aliases after changes
 - **Safe**: Confirmation prompts before removing aliases
 - **Fast**: Written in C with zero dependencies
 - **Universal**: Works with bash, zsh, fish, and any POSIX shell
 - **Smart**: Auto-detects terminal capabilities for colored output
 - **Memory-safe**: No dynamic allocation, stack-only implementation
+- **XDG-compliant**: Follows modern standards for configuration storage
 
 ## Quick Start
 
 ```bash
-# Install (see Installation section for your platform)
-brew install kazetachinuu/alias-manager/alias-manager  # macOS/Linux
-# or
-yay -S alias-manager                                    # Arch Linux
+# 1. Install
+brew install kazetachinuu/alias-manager/alias-manager
+# or: yay -S alias-manager
 
-# Set up (add to ~/.bashrc or ~/.zshrc)
-eval "$(am init)"
+# 2. Setup
+am init
+source ~/.bashrc  # or ~/.zshrc
 
-# Create your first alias
+# 3. Use
 am add gc "git commit -m"
-
-# Use it!
-gc "my commit message"
+eval "$(am reload)"
+gc "my first commit"
 ```
 
 ## Installation
@@ -80,94 +81,82 @@ sudo make install
 
 ## Setup
 
-After installation, add one of these lines to your shell configuration file:
-
-**Bash** (`~/.bashrc`):
 ```bash
-eval "$(am init)"
-```
-
-**Zsh** (`~/.zshrc`):
-```bash
-eval "$(am init)"
-```
-
-**Fish** (`~/.config/fish/config.fish`):
-```bash
-am init fish | source
-```
-
-Then reload your shell:
-```bash
+am init
 source ~/.bashrc  # or ~/.zshrc
+```
+
+The `init` command detects your shell and adds integration to your config file (`~/.bashrc`, `~/.zshrc`, or `~/.config/fish/config.fish`).
+
+### Manual Setup
+
+Add to your shell config:
+```bash
+eval "$(am init --hook)"
 ```
 
 ## Usage
 
-### Add an Alias
-
 ```bash
-# Basic usage
-am add <name> <command>
-
-# Examples
-am add ll "ls -lah"
+# Add an alias
 am add gc "git commit -m"
-am add gp "git push origin"
-am add update "sudo apt update && sudo apt upgrade -y"
-```
+# ✓ Added alias 'gc' → 'git commit -m'
+#   (run "eval $(am reload)" to use it now)
+eval "$(am reload)"
 
-### List Aliases
-
-```bash
-# List all aliases
+# List aliases
 am ls
+am ls git  # Filter by pattern
 
-# Search for specific aliases
-am ls git    # Shows all aliases containing "git"
-```
-
-### Remove an Alias
-
-```bash
-# Remove with confirmation prompt
+# Remove an alias
 am rm gc
+# ✓ Removed alias 'gc'
+#   (run "unalias gc" to remove from current shell)
+unalias gc
 
-# Force remove without confirmation
-am rm gc -f
-```
-
-### Get Help
-
-```bash
-# Show help
+# Help
 am help
-
-# Show version
 am version
-
-# Read manual page
-man am
 ```
 
 ## Command Reference
 
 | Command | Description | Example |
 |---------|-------------|---------|
+| `am init [shell]` | Interactive setup (modifies shell config) | `am init` |
 | `am add <name> <command>` | Create or update an alias | `am add gc "git commit -m"` |
 | `am rm <name> [-f]` | Remove an alias (optionally force) | `am rm gc` or `am rm gc -f` |
 | `am ls [pattern]` | List all aliases or filter by pattern | `am ls` or `am ls git` |
-| `am init [shell]` | Generate shell integration code | `am init` or `am init fish` |
+| `am reload [shell]` | Output reload command for current shell | `eval "$(am reload)"` |
+| `am init --hook [shell]` | Output shell hook code (for manual setup) | `eval "$(am init --hook)"` |
 | `am help` | Show help message | `am help` |
 | `am version` | Show version information | `am version` |
+
+### Optional: Quick Reload Alias
+
+Create an `amr` alias for faster reloading:
+
+```bash
+am add amr 'eval "$(am reload)"'
+eval "$(am reload)"
+```
+
+Now:
+```bash
+am add gp "git push"
+amr  # Instead of eval "$(am reload)"
+gp
+```
 
 ## Configuration
 
 ### Alias Storage Location
 
-By default, aliases are stored in:
-- **XDG-compliant**: `~/.config/am/aliases.txt` (preferred)
-- **Legacy fallback**: `~/.my_aliases.txt` (if it exists)
+Aliases are stored in the XDG-compliant location:
+- `${XDG_CONFIG_HOME}/am/aliases.txt` (if `XDG_CONFIG_HOME` is set)
+- `~/.config/am/aliases.txt` (default)
+
+The directory is created automatically on first use.
 
 ### Custom Location
 

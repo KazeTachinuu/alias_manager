@@ -1,20 +1,19 @@
+#include "alias_manager.h"
+
 #include <ctype.h>
+#include <errno.h>
+#include <limits.h>
+#include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <sys/stat.h>
 #include <unistd.h>
-#include <errno.h>
-#include <stdarg.h>
-#include <limits.h>
-
-#include "alias_manager.h"
 
 #ifndef PATH_MAX
-#define PATH_MAX 4096
+#    define PATH_MAX 4096
 #endif
 
-#define ALIAS_FILE ".my_aliases.txt"
 #define XDG_CONFIG_DIR "am"
 #define XDG_ALIAS_FILE "aliases.txt"
 
@@ -22,33 +21,49 @@ static bool is_valid_name(const char *name);
 static bool get_alias_file_path(char *buf, size_t size);
 static bool mkdirp(const char *path);
 
-
-static const char *COLOR_BLUE   = "";
-static const char *COLOR_GREEN  = "";
-static const char *COLOR_RED    = "";
+static const char *COLOR_BLUE = "";
+static const char *COLOR_GREEN = "";
+static const char *COLOR_RED = "";
 static const char *COLOR_YELLOW = "";
-static const char *COLOR_RESET  = "";
+static const char *COLOR_RESET = "";
 
 void am_init_colors(void)
 {
     static bool initialized = false;
-    if (initialized) return;
+    if (initialized)
+        return;
 
-    if (isatty(STDOUT_FILENO) && isatty(STDERR_FILENO)) {
-        COLOR_BLUE   = "\033[0;34m";
-        COLOR_GREEN  = "\033[0;32m";
-        COLOR_RED    = "\033[0;31m";
+    if (isatty(STDOUT_FILENO) && isatty(STDERR_FILENO))
+    {
+        COLOR_BLUE = "\033[0;34m";
+        COLOR_GREEN = "\033[0;32m";
+        COLOR_RED = "\033[0;31m";
         COLOR_YELLOW = "\033[0;33m";
-        COLOR_RESET  = "\033[0m";
+        COLOR_RESET = "\033[0m";
     }
     initialized = true;
 }
 
-const char *am_color_blue(void)   { return COLOR_BLUE; }
-const char *am_color_green(void)  { return COLOR_GREEN; }
-const char *am_color_red(void)    { return COLOR_RED; }
-const char *am_color_yellow(void) { return COLOR_YELLOW; }
-const char *am_color_reset(void)  { return COLOR_RESET; }
+const char *am_color_blue(void)
+{
+    return COLOR_BLUE;
+}
+const char *am_color_green(void)
+{
+    return COLOR_GREEN;
+}
+const char *am_color_red(void)
+{
+    return COLOR_RED;
+}
+const char *am_color_yellow(void)
+{
+    return COLOR_YELLOW;
+}
+const char *am_color_reset(void)
+{
+    return COLOR_RESET;
+}
 
 static void log_error(const char *fmt, ...)
 {
@@ -87,31 +102,38 @@ static ErrorCode write_alias(FILE *fp, const char *name, const char *command)
     char escaped_cmd[MAX_LINE_LENGTH];
     size_t j = 0;
 
-    for (const char *src = command; *src && j < MAX_LINE_LENGTH - 5; src++) {
-        if (*src == '\'') {
+    for (const char *src = command; *src && j < MAX_LINE_LENGTH - 5; src++)
+    {
+        if (*src == '\'')
+        {
             escaped_cmd[j++] = '\'';
             escaped_cmd[j++] = '\\';
             escaped_cmd[j++] = '\'';
             escaped_cmd[j++] = '\'';
-        } else {
+        }
+        else
+        {
             escaped_cmd[j++] = *src;
         }
     }
     escaped_cmd[j] = '\0';
 
-    return fprintf(fp, "alias %s='%s'\n", name, escaped_cmd) > 0 ?
-        SUCCESS : ERR_FILE_ACCESS;
+    return fprintf(fp, "alias %s='%s'\n", name, escaped_cmd) > 0
+        ? SUCCESS
+        : ERR_FILE_ACCESS;
 }
 
 ErrorCode am_add(const char *name, const char *command)
 {
     am_init_colors();
 
-    if (!is_valid_name(name)) {
+    if (!is_valid_name(name))
+    {
         log_error("Invalid alias name");
         return ERR_INVALID_ARG;
     }
-    if (!command || !*command) {
+    if (!command || !*command)
+    {
         log_error("Command cannot be empty");
         return ERR_INVALID_ARG;
     }
@@ -124,13 +146,16 @@ ErrorCode am_add(const char *name, const char *command)
     if (err != SUCCESS && err != ERR_FILE_ACCESS)
         return err;
 
-    if (!mkdirp(path)) {
-        log_error("Cannot create directory for alias file: %s", strerror(errno));
+    if (!mkdirp(path))
+    {
+        log_error("Cannot create directory for alias file: %s",
+                  strerror(errno));
         return ERR_FILE_ACCESS;
     }
 
     FILE *fp = fopen(path, "a");
-    if (!fp) {
+    if (!fp)
+    {
         log_error("Cannot write to alias file");
         return ERR_FILE_ACCESS;
     }
@@ -139,7 +164,8 @@ ErrorCode am_add(const char *name, const char *command)
     fclose(fp);
 
     if (err == SUCCESS)
-        log_success("Added alias '%s%s%s' → '%s'", COLOR_YELLOW, name, COLOR_RESET, command);
+        log_success("Added alias '%s%s%s' → '%s'", COLOR_YELLOW, name,
+                    COLOR_RESET, command);
 
     return err;
 }
@@ -148,8 +174,10 @@ ErrorCode am_remove(const char *name, bool force)
 {
     am_init_colors();
 
-    if (!is_valid_name(name)) {
-        if (!force) log_error("Invalid alias name");
+    if (!is_valid_name(name))
+    {
+        if (!force)
+            log_error("Invalid alias name");
         return ERR_INVALID_ARG;
     }
 
@@ -166,10 +194,12 @@ ErrorCode am_remove(const char *name, bool force)
         return ERR_SYSTEM;
 
     FILE *src = fopen(path, "r");
-    if (!src) return ERR_FILE_ACCESS;
+    if (!src)
+        return ERR_FILE_ACCESS;
 
     FILE *dst = fopen(temp_path, "w");
-    if (!dst) {
+    if (!dst)
+    {
         fclose(src);
         return ERR_FILE_ACCESS;
     }
@@ -178,16 +208,21 @@ ErrorCode am_remove(const char *name, bool force)
     bool found = false;
     size_t name_len = strlen(name);
 
-    while (fgets(line, sizeof(line), src)) {
-        if (strstr(line, "alias ") == line &&
-            strncmp(line + 6, name, name_len) == 0 &&
-            line[6 + name_len] == '=') {
+    while (fgets(line, sizeof(line), src))
+    {
+        if (strstr(line, "alias ") == line
+            && strncmp(line + 6, name, name_len) == 0
+            && line[6 + name_len] == '=')
+        {
             found = true;
-            if (!force) {
+            if (!force)
+            {
                 printf("Remove alias: %sAre you sure? [Y/n] ", line);
                 char response[10];
-                if (fgets(response, sizeof(response), stdin) &&
-                    response[0] != 'y' && response[0] != 'Y' && response[0] != '\n') {
+                if (fgets(response, sizeof(response), stdin)
+                    && response[0] != 'y' && response[0] != 'Y'
+                    && response[0] != '\n')
+                {
                     printf("Operation cancelled\n");
                     fclose(src);
                     fclose(dst);
@@ -203,8 +238,11 @@ ErrorCode am_remove(const char *name, bool force)
     fclose(src);
     fclose(dst);
 
-    if (!found) {
-        if (!force) printf("%sNote:%s Alias '%s' not found\n", COLOR_BLUE, COLOR_RESET, name);
+    if (!found)
+    {
+        if (!force)
+            printf("%sNote:%s Alias '%s' not found\n", COLOR_BLUE, COLOR_RESET,
+                   name);
         remove(temp_path);
         return SUCCESS;
     }
@@ -213,7 +251,8 @@ ErrorCode am_remove(const char *name, bool force)
     if (stat(path, &st) == 0)
         chmod(temp_path, st.st_mode);
 
-    if (rename(temp_path, path) != 0) {
+    if (rename(temp_path, path) != 0)
+    {
         remove(temp_path);
         return ERR_SYSTEM;
     }
@@ -229,18 +268,32 @@ ErrorCode am_list(const char *filter)
     am_init_colors();
 
     FILE *fp = open_alias_file("r");
-    if (!fp) {
-        if (errno != ENOENT)
-            log_error("Cannot read alias file");
+    if (!fp)
+    {
+        if (errno == ENOENT)
+        {
+            // No aliases file exists yet - this is normal for first-time users
+            if (!filter)
+            {
+                printf("%sNo aliases yet.%s Add one with: %sam add <name> "
+                       "<command>%s\n",
+                       COLOR_BLUE, COLOR_RESET, COLOR_GREEN, COLOR_RESET);
+            }
+            return SUCCESS;
+        }
+        log_error("Cannot read alias file");
         return ERR_FILE_ACCESS;
     }
 
     char line[MAX_LINE_LENGTH];
     int count = 0;
 
-    while (fgets(line, sizeof(line), fp)) {
-        if (strstr(line, "alias ") != line) continue;
-        if (!filter || strstr(line + 6, filter)) {
+    while (fgets(line, sizeof(line), fp))
+    {
+        if (strstr(line, "alias ") != line)
+            continue;
+        if (!filter || strstr(line + 6, filter))
+        {
             printf("%s", line + 6);
             count++;
         }
@@ -249,7 +302,8 @@ ErrorCode am_list(const char *filter)
     fclose(fp);
 
     if (count == 0 && filter)
-        printf("%sNote:%s No aliases found matching '%s'\n", COLOR_BLUE, COLOR_RESET, filter);
+        printf("%sNote:%s No aliases found matching '%s'\n", COLOR_BLUE,
+               COLOR_RESET, filter);
 
     return SUCCESS;
 }
@@ -257,13 +311,10 @@ ErrorCode am_list(const char *filter)
 // Utility implementations
 const char *error_message(ErrorCode err)
 {
-    static const char *messages[] = {
-        "Success",
-        "Invalid arguments",
-        "File access error",
-        "Home directory not found",
-        "System error"
-    };
+    static const char *messages[] = { "Success", "Invalid arguments",
+                                      "File access error",
+                                      "Home directory not found",
+                                      "System error" };
 
     if (err < 0 || err > ERR_SYSTEM)
         return "Unknown error";
@@ -287,18 +338,21 @@ bool is_valid_name(const char *name)
 
 static bool mkdirp(const char *file_path)
 {
-    char *dir_end = strrchr(file_path, '/');
-    if (!dir_end) return true;
+    const char *dir_end = strrchr(file_path, '/');
+    if (!dir_end)
+        return true;
 
     char dir[PATH_MAX];
     size_t len = dir_end - file_path;
-    if (len >= sizeof(dir)) return false;
+    if (len >= sizeof(dir))
+        return false;
 
     memcpy(dir, file_path, len);
     dir[len] = '\0';
 
     char *p = dir[0] == '/' ? dir + 1 : dir;
-    for (char *s; (s = strchr(p, '/')); p = s + 1) {
+    for (char *s; (s = strchr(p, '/')); p = s + 1)
+    {
         *s = '\0';
         if (mkdir(dir, 0755) != 0 && errno != EEXIST)
             return false;
@@ -312,26 +366,21 @@ static bool mkdirp(const char *file_path)
 bool get_alias_file_path(char *buf, size_t size)
 {
     const char *custom = getenv("AM_ALIAS_FILE");
-    if (custom) {
+    if (custom)
+    {
         int n = snprintf(buf, size, "%s", custom);
         return n > 0 && (size_t)n < size;
     }
 
     const char *home = getenv("HOME");
-    if (!home) return false;
-
-    struct stat st;
-    char legacy[PATH_MAX];
-    int legacy_len = snprintf(legacy, sizeof(legacy), "%s/%s", home, ALIAS_FILE);
-    if (legacy_len > 0 && (size_t)legacy_len < sizeof(legacy) && stat(legacy, &st) == 0) {
-        snprintf(buf, size, "%s", legacy);
-        return true;
-    }
+    if (!home)
+        return false;
 
     const char *xdg = getenv("XDG_CONFIG_HOME");
-    int n = xdg ?
-        snprintf(buf, size, "%s/%s/%s", xdg, XDG_CONFIG_DIR, XDG_ALIAS_FILE) :
-        snprintf(buf, size, "%s/.config/%s/%s", home, XDG_CONFIG_DIR, XDG_ALIAS_FILE);
+    int n = xdg
+        ? snprintf(buf, size, "%s/%s/%s", xdg, XDG_CONFIG_DIR, XDG_ALIAS_FILE)
+        : snprintf(buf, size, "%s/.config/%s/%s", home, XDG_CONFIG_DIR,
+                   XDG_ALIAS_FILE);
 
     return n > 0 && (size_t)n < size;
 }

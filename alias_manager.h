@@ -5,7 +5,8 @@
 
 #define MAX_LINE_LENGTH 4096
 
-typedef enum {
+typedef enum
+{
     SUCCESS = 0,
     ERR_INVALID_ARG,
     ERR_FILE_ACCESS,
