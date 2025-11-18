@@ -2,6 +2,7 @@
 #define ALIAS_MANAGER_H
 
 #include <stdbool.h>
+#include <stddef.h>
 
 #define MAX_LINE_LENGTH 4096
 
@@ -23,6 +24,7 @@ const char *am_color_reset(void);
 ErrorCode am_add(const char *name, const char *command);
 ErrorCode am_remove(const char *name, bool force);
 ErrorCode am_list(const char *filter);
+bool am_get_path(char *buf, size_t size);
 const char *error_message(ErrorCode err);
 
 #endif

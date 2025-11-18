@@ -36,6 +36,9 @@ Output the command to reload aliases in the current shell.
 Use with
 .BR "eval $(am reload)" .
 .TP
+.B path
+Show the path to the alias file.
+.TP
 .B help
 Show help message.
 .TP
@@ -89,6 +92,9 @@ Search for git-related aliases:
 .TP
 Reload aliases in current shell:
 .B eval "$(am reload)"
+.TP
+Show alias file location:
+.B am path
 .TP
 Remove an alias with confirmation:
 .B am rm gl

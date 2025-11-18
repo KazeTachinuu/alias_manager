@@ -35,6 +35,7 @@ static void print_usage(void)
            am_color_reset());
     printf("  %sreload%s            Print source command (use with eval)\n",
            am_color_yellow(), am_color_reset());
+    printf("  path              Show alias file path\n");
     printf("  help              Show this help\n");
     printf("  version           Show version\n");
 }
@@ -81,6 +82,21 @@ static ErrorCode handle_version(int argc, char *argv[])
     (void)argv;
     printf("%sAlias Manager%s v%s\n", am_color_blue(), am_color_reset(),
            VERSION);
+    return SUCCESS;
+}
+
+static ErrorCode handle_path(int argc, char *argv[])
+{
+    (void)argc;
+    (void)argv;
+    char path[PATH_MAX];
+    if (!am_get_path(path, sizeof(path)))
+    {
+        fprintf(stderr, "%sError:%s Could not determine alias file path\n",
+                am_color_red(), am_color_reset());
+        return ERR_HOME_DIR;
+    }
+    printf("%s\n", path);
     return SUCCESS;
 }
 
@@ -194,13 +210,7 @@ static ErrorCode handle_init(int argc, char *argv[])
 
     // Check if already initialized (aliases.txt exists = already set up)
     char alias_path[PATH_MAX];
-    const char *xdg = getenv("XDG_CONFIG_HOME");
-    written = xdg
-        ? snprintf(alias_path, sizeof(alias_path), "%s/am/aliases.txt", xdg)
-        : snprintf(alias_path, sizeof(alias_path), "%s/.config/am/aliases.txt",
-                   home);
-
-    if (written > 0 && written < (int)sizeof(alias_path)
+    if (am_get_path(alias_path, sizeof(alias_path))
         && access(alias_path, F_OK) == 0)
     {
         printf("%s✓%s Already initialized (found %s)\n", am_color_green(),
@@ -283,8 +293,9 @@ static ErrorCode handle_reload(int argc, char *argv[])
 static const Command COMMANDS[] = {
     { "add", handle_add, 4 },         { "rm", handle_remove, 3 },
     { "ls", handle_list, 2 },         { "init", handle_init, 2 },
-    { "reload", handle_reload, 2 },   { "help", handle_help, 1 },
-    { "version", handle_version, 1 }, { NULL, NULL, 0 } // Sentinel
+    { "reload", handle_reload, 2 },   { "path", handle_path, 2 },
+    { "help", handle_help, 1 },       { "version", handle_version, 1 },
+    { NULL, NULL, 0 } // Sentinel
 };
 
 int main(int argc, char *argv[])

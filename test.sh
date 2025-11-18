@@ -181,13 +181,14 @@ expect_failure $? "Reload with invalid shell fails" || true
 echo
 echo "=== List Command Tests ==="
 
-# Test: List with no alias file shows helpful message
+# Test: List with no alias file shows helpful message and path
 rm -f "$TEST_ALIAS_FILE"
 NO_FILE_OUT=$(./am ls 2>&1)
-if [ $? -eq 0 ] && echo "$NO_FILE_OUT" | grep -qi "no aliases yet"; then
-    pass "List with no file shows helpful message"
+if [ $? -eq 0 ] && echo "$NO_FILE_OUT" | grep -qi "no aliases yet" && \
+   echo "$NO_FILE_OUT" | grep -q "File:"; then
+    pass "List with no file shows helpful message and path"
 else
-    fail "List with no file shows helpful message"
+    fail "List with no file shows helpful message and path"
 fi
 
 # Test: List with empty file
@@ -345,6 +346,25 @@ if (bash -c "source '$TEST_ALIAS_FILE' && alias complex" >/dev/null 2>&1); then
     pass "Sourced aliases are functional"
 else
     fail "Sourced aliases are functional"
+fi
+
+echo
+echo "=== Path Command ==="
+
+# Test: Path command returns the configured path
+PATH_OUT=$(./am path)
+if [ $? -eq 0 ] && [ "$PATH_OUT" = "$TEST_ALIAS_FILE" ]; then
+    pass "Path command returns AM_ALIAS_FILE path"
+else
+    fail "Path command returns AM_ALIAS_FILE path"
+fi
+
+# Test: Path command with custom file
+CUSTOM_PATH_OUT=$(AM_ALIAS_FILE="$TEST_DIR/custom.txt" ./am path)
+if [ $? -eq 0 ] && [ "$CUSTOM_PATH_OUT" = "$TEST_DIR/custom.txt" ]; then
+    pass "Path command respects AM_ALIAS_FILE"
+else
+    fail "Path command respects AM_ALIAS_FILE"
 fi
 
 echo

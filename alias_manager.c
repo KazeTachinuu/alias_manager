@@ -18,7 +18,6 @@
 #define XDG_ALIAS_FILE "aliases.txt"
 
 static bool is_valid_name(const char *name);
-static bool get_alias_file_path(char *buf, size_t size);
 static bool mkdirp(const char *path);
 
 static const char *COLOR_BLUE = "";
@@ -88,7 +87,7 @@ static void log_success(const char *fmt, ...)
 static FILE *open_alias_file(const char *mode)
 {
     char path[PATH_MAX];
-    if (!get_alias_file_path(path, sizeof(path)))
+    if (!am_get_path(path, sizeof(path)))
         return NULL;
 
     FILE *fp = fopen(path, mode);
@@ -139,7 +138,7 @@ ErrorCode am_add(const char *name, const char *command)
     }
 
     char path[PATH_MAX];
-    if (!get_alias_file_path(path, sizeof(path)))
+    if (!am_get_path(path, sizeof(path)))
         return ERR_HOME_DIR;
 
     ErrorCode err = am_remove(name, true);
@@ -187,7 +186,7 @@ ErrorCode am_remove(const char *name, bool force)
     }
 
     char path[PATH_MAX];
-    if (!get_alias_file_path(path, sizeof(path)))
+    if (!am_get_path(path, sizeof(path)))
         return ERR_HOME_DIR;
 
     if (access(path, F_OK) != 0)
@@ -284,9 +283,12 @@ ErrorCode am_list(const char *filter)
             // No aliases file exists yet - this is normal for first-time users
             if (!filter)
             {
+                char path[PATH_MAX];
                 printf("%sNo aliases yet.%s Add one with: %sam add <name> "
                        "<command>%s\n",
                        COLOR_BLUE, COLOR_RESET, COLOR_GREEN, COLOR_RESET);
+                if (am_get_path(path, sizeof(path)))
+                    printf("File: %s\n", path);
             }
             return SUCCESS;
         }
@@ -372,7 +374,7 @@ static bool mkdirp(const char *file_path)
     return true;
 }
 
-bool get_alias_file_path(char *buf, size_t size)
+bool am_get_path(char *buf, size_t size)
 {
     const char *custom = getenv("AM_ALIAS_FILE");
     if (custom)
