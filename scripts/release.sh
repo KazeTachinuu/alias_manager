@@ -38,7 +38,7 @@ fi
 
 # Confirm
 echo -e "\n${YELLOW}This will:${NC}"
-echo "  1. Update version in Makefile, PKGBUILD, debian/control"
+echo "  1. Update version in Makefile, PKGBUILD, debian/control, README.md"
 echo "  2. Commit changes"
 echo "  3. Create and push git tag v$NEW_VERSION"
 echo "  4. Wait for GitHub Actions to build release"
@@ -66,6 +66,11 @@ echo -e "  ${GREEN}✓${NC} PKGBUILD"
 sed -i.bak "s/^Version: .*/Version: $NEW_VERSION/" debian/control && rm debian/control.bak
 echo -e "  ${GREEN}✓${NC} debian/control"
 
+# Update README.md
+sed -i.bak "s/alias-manager_[0-9]*\.[0-9]*\.[0-9]*_amd64\.deb/alias-manager_${NEW_VERSION}_amd64.deb/g" README.md && rm README.md.bak
+sed -i.bak "s/alias-manager-[0-9]*\.[0-9]*\.[0-9]*-linux-amd64\.tar\.gz/alias-manager-${NEW_VERSION}-linux-amd64.tar.gz/g" README.md && rm README.md.bak
+echo -e "  ${GREEN}✓${NC} README.md"
+
 # Build and test
 echo -e "\n${BLUE}Step 2: Building and testing...${NC}"
 make clean
@@ -80,7 +85,7 @@ fi
 
 # Commit
 echo -e "\n${BLUE}Step 3: Committing changes...${NC}"
-git add Makefile PKGBUILD debian/control
+git add Makefile PKGBUILD debian/control README.md
 git commit -m "v$NEW_VERSION: Bump version"
 echo -e "  ${GREEN}✓${NC} Committed"
 

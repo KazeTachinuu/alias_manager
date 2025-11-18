@@ -54,16 +54,16 @@ brew install kazetachinuu/alias-manager/alias-manager
 
 ```bash
 # Download and install the .deb package
-wget https://github.com/kazetachinuu/alias_manager/releases/latest/download/alias-manager_2.1.2_amd64.deb
-sudo dpkg -i alias-manager_2.1.2_amd64.deb
+wget https://github.com/kazetachinuu/alias_manager/releases/latest/download/alias-manager_2.2.0_amd64.deb
+sudo dpkg -i alias-manager_2.2.0_amd64.deb
 ```
 
 ### Other Linux (from tarball)
 
 ```bash
 # Download the binary
-wget https://github.com/kazetachinuu/alias_manager/releases/latest/download/alias-manager-2.1.2-linux-amd64.tar.gz
-tar -xzf alias-manager-2.1.2-linux-amd64.tar.gz
+wget https://github.com/kazetachinuu/alias_manager/releases/latest/download/alias-manager-2.2.0-linux-amd64.tar.gz
+tar -xzf alias-manager-2.2.0-linux-amd64.tar.gz
 
 # Install
 sudo install -m 755 am /usr/local/bin/am
