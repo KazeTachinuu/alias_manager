@@ -27,13 +27,13 @@ cp am.1 "${BUILDDIR}/usr/share/man/man1/"
 gzip -9 "${BUILDDIR}/usr/share/man/man1/am.1"
 cp LICENSE "${BUILDDIR}/usr/share/doc/${PKGNAME}/"
 cp README.md "${BUILDDIR}/usr/share/doc/${PKGNAME}/"
-cp packaging/deb/control "${BUILDDIR}/DEBIAN/"
+cp debian/control "${BUILDDIR}/DEBIAN/"
 
 # Build package
 dpkg-deb --build --root-owner-group "${BUILDDIR}"
 
-# Move to packaging directory
-mkdir -p packaging/deb
-mv "${BUILDDIR}.deb" "packaging/deb/${PKGNAME}_${VERSION}_amd64.deb"
+# Move to debian directory
+mkdir -p debian
+mv "${BUILDDIR}.deb" "debian/${PKGNAME}_${VERSION}_amd64.deb"
 
-echo "✓ Package built: packaging/deb/${PKGNAME}_${VERSION}_amd64.deb"
+echo "✓ Package built: debian/${PKGNAME}_${VERSION}_amd64.deb"

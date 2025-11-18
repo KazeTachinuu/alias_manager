@@ -18,8 +18,8 @@ jobs:
       - name: Build .deb package
         run: |
           set -euo pipefail
-          ./packaging/deb/build.sh
-          if [ ! -f packaging/deb/*.deb ]; then
+          ./debian/build.sh
+          if [ ! -f debian/*.deb ]; then
             echo "Error: .deb file not produced"
             exit 1
           fi
@@ -28,7 +28,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: debian-package
-          path: packaging/deb/*.deb
+          path: debian/*.deb
 
   build-linux:
     name: Build Linux Binary

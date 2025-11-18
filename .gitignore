@@ -5,7 +5,7 @@ src/
 *.pkg.tar.*
 *.tar.gz
 build-deb/
-packaging/deb/*.deb
+debian/*.deb
 
 # Prerequisites
 *.d
