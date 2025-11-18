@@ -128,6 +128,7 @@ am version
 | `am rm <name> [-f]` | Remove an alias (optionally force) | `am rm gc` or `am rm gc -f` |
 | `am ls [pattern]` | List all aliases or filter by pattern | `am ls` or `am ls git` |
 | `am reload [shell]` | Output reload command for current shell | `eval "$(am reload)"` |
+| `am path` | Show alias file path | `am path` |
 | `am init --hook [shell]` | Output shell hook code (for manual setup) | `eval "$(am init --hook)"` |
 | `am help` | Show help message | `am help` |
 | `am version` | Show version information | `am version` |
