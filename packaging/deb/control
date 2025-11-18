@@ -1,5 +1,5 @@
 Package: alias-manager
-Version: 2.1.0
+Version: 2.1.1
 Section: utils
 Priority: optional
 Architecture: amd64

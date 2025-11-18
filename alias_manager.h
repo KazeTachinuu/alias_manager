@@ -13,7 +13,6 @@ typedef enum {
     ERR_SYSTEM
 } ErrorCode;
 
-// Core API
 void am_init_colors(void);
 const char *am_color_blue(void);
 const char *am_color_green(void);

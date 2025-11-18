@@ -1,0 +1,155 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+
+jobs:
+  build-deb:
+    name: Build .deb Package
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build .deb package
+        run: |
+          set -euo pipefail
+          cd packaging/deb
+          ./build.sh
+          if [ ! -f *.deb ]; then
+            echo "Error: .deb file not produced"
+            exit 1
+          fi
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: debian-package
+          path: packaging/deb/*.deb
+
+  build-linux:
+    name: Build Linux Binary
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build binary
+        run: |
+          set -euo pipefail
+          make
+
+      - name: Create tarball
+        run: |
+          set -euo pipefail
+          VERSION=${GITHUB_REF#refs/tags/v}
+          if [ -z "$VERSION" ]; then
+            echo "Error: VERSION not extracted from tag"
+            exit 1
+          fi
+          for file in am am.1 LICENSE README.md; do
+            if [ ! -f "$file" ]; then
+              echo "Error: Required file not found: $file"
+              exit 1
+            fi
+          done
+          tar -czf alias-manager-${VERSION}-linux-amd64.tar.gz am am.1 LICENSE README.md
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: linux-binary
+          path: '*.tar.gz'
+
+  build-macos:
+    name: Build macOS Binary
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build binary
+        run: |
+          set -euo pipefail
+          make
+
+      - name: Create tarball
+        run: |
+          set -euo pipefail
+          VERSION=${GITHUB_REF#refs/tags/v}
+          if [ -z "$VERSION" ]; then
+            echo "Error: VERSION not extracted from tag"
+            exit 1
+          fi
+          for file in am am.1 LICENSE README.md; do
+            if [ ! -f "$file" ]; then
+              echo "Error: Required file not found: $file"
+              exit 1
+            fi
+          done
+          tar -czf alias-manager-${VERSION}-macos-amd64.tar.gz am am.1 LICENSE README.md
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: macos-binary
+          path: '*.tar.gz'
+
+  release:
+    name: Create GitHub Release
+    needs: [build-deb, build-linux, build-macos]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+
+      - name: Display structure
+        run: ls -R
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: |
+            debian-package/*.deb
+            linux-binary/*.tar.gz
+            macos-binary/*.tar.gz
+          generate_release_notes: true
+          body: |
+            ## Installation
+
+            ### Arch Linux (AUR)
+            ```bash
+            yay -S alias-manager
+            ```
+
+            ### Debian/Ubuntu
+            Download the `.deb` package and install:
+            ```bash
+            sudo dpkg -i alias-manager_*_amd64.deb
+            ```
+
+            ### Linux (tarball)
+            ```bash
+            tar -xzf alias-manager-*-linux-amd64.tar.gz
+            sudo install -m 755 am /usr/local/bin/am
+            sudo install -m 644 am.1 /usr/local/share/man/man1/am.1
+            ```
+
+            ### macOS (tarball)
+            ```bash
+            tar -xzf alias-manager-*-macos-amd64.tar.gz
+            sudo install -m 755 am /usr/local/bin/am
+            sudo install -m 644 am.1 /usr/local/share/man/man1/am.1
+            ```
+
+            ### Setup
+            After installation:
+            ```bash
+            eval "$(am init)"
+            ```
+
+            See the [README](https://github.com/kazetachinuu/alias_manager#readme) for more details.

@@ -1,4 +1,4 @@
-VERSION = 2.1.0
+VERSION = 2.1.1
 CC ?= gcc
 CFLAGS ?= -Wall -Wextra -pedantic -std=c11
 CFLAGS += -DVERSION='"$(VERSION)"'
@@ -6,9 +6,12 @@ LDFLAGS ?=
 PREFIX ?= /usr/local
 DESTDIR =
 
-.PHONY: all clean install uninstall
+.PHONY: all clean install uninstall test
 
 all: am
+
+test: am
+	./test.sh
 
 am: alias_manager.o main.o
 	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^

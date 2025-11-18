@@ -47,9 +47,27 @@ Display version information (same as
 Force operation without confirmation (for
 .BR rm " command)."
 .SH FILES
+The alias file location is determined by the following priority:
+.TP
+.I $AM_ALIAS_FILE
+Custom alias file path (highest priority).
+.TP
+.I $XDG_CONFIG_HOME/am/aliases.txt
+XDG standard configuration location if XDG_CONFIG_HOME is set.
+.TP
+.I ~/.config/am/aliases.txt
+Default XDG configuration location.
 .TP
 .I ~/.my_aliases.txt
-Default file where aliases are stored.
+Legacy location (used if it already exists).
+.SH ENVIRONMENT
+.TP
+.B AM_ALIAS_FILE
+Override the alias file location. Useful for testing or custom setups.
+.TP
+.B XDG_CONFIG_HOME
+Standard XDG configuration directory. If set, aliases are stored in
+.IR $XDG_CONFIG_HOME/am/aliases.txt .
 .SH EXAMPLES
 .TP
 Setup shell integration (run once):

@@ -15,12 +15,14 @@
 #endif
 
 #define ALIAS_FILE ".my_aliases.txt"
+#define XDG_CONFIG_DIR "am"
+#define XDG_ALIAS_FILE "aliases.txt"
 
-// Forward declarations
 static bool is_valid_name(const char *name);
 static bool get_alias_file_path(char *buf, size_t size);
+static bool mkdirp(const char *path);
 
-// Color codes (set at runtime based on TTY detection)
+
 static const char *COLOR_BLUE   = "";
 static const char *COLOR_GREEN  = "";
 static const char *COLOR_RED    = "";
@@ -30,20 +32,14 @@ static const char *COLOR_RESET  = "";
 void am_init_colors(void)
 {
     static bool initialized = false;
-    if (initialized)
-        return;
+    if (initialized) return;
 
-    if (isatty(STDOUT_FILENO) && isatty(STDERR_FILENO))
-    {
+    if (isatty(STDOUT_FILENO) && isatty(STDERR_FILENO)) {
         COLOR_BLUE   = "\033[0;34m";
         COLOR_GREEN  = "\033[0;32m";
         COLOR_RED    = "\033[0;31m";
         COLOR_YELLOW = "\033[0;33m";
         COLOR_RESET  = "\033[0m";
-    }
-    else
-    {
-        COLOR_BLUE = COLOR_GREEN = COLOR_RED = COLOR_YELLOW = COLOR_RESET = "";
     }
     initialized = true;
 }
@@ -53,15 +49,6 @@ const char *am_color_green(void)  { return COLOR_GREEN; }
 const char *am_color_red(void)    { return COLOR_RED; }
 const char *am_color_yellow(void) { return COLOR_YELLOW; }
 const char *am_color_reset(void)  { return COLOR_RESET; }
-
-static void log_info(const char *fmt, ...)
-{
-    va_list args;
-    va_start(args, fmt);
-    vfprintf(stdout, fmt, args);
-    fprintf(stdout, "\n");
-    va_end(args);
-}
 
 static void log_error(const char *fmt, ...)
 {
@@ -137,6 +124,11 @@ ErrorCode am_add(const char *name, const char *command)
     if (err != SUCCESS && err != ERR_FILE_ACCESS)
         return err;
 
+    if (!mkdirp(path)) {
+        log_error("Cannot create directory for alias file: %s", strerror(errno));
+        return ERR_FILE_ACCESS;
+    }
+
     FILE *fp = fopen(path, "a");
     if (!fp) {
         log_error("Cannot write to alias file");
@@ -196,7 +188,7 @@ ErrorCode am_remove(const char *name, bool force)
                 char response[10];
                 if (fgets(response, sizeof(response), stdin) &&
                     response[0] != 'y' && response[0] != 'Y' && response[0] != '\n') {
-                    log_info("Operation cancelled");
+                    printf("Operation cancelled\n");
                     fclose(src);
                     fclose(dst);
                     remove(temp_path);
@@ -293,12 +285,53 @@ bool is_valid_name(const char *name)
     return true;
 }
 
+static bool mkdirp(const char *file_path)
+{
+    char *dir_end = strrchr(file_path, '/');
+    if (!dir_end) return true;
+
+    char dir[PATH_MAX];
+    size_t len = dir_end - file_path;
+    if (len >= sizeof(dir)) return false;
+
+    memcpy(dir, file_path, len);
+    dir[len] = '\0';
+
+    char *p = dir[0] == '/' ? dir + 1 : dir;
+    for (char *s; (s = strchr(p, '/')); p = s + 1) {
+        *s = '\0';
+        if (mkdir(dir, 0755) != 0 && errno != EEXIST)
+            return false;
+        *s = '/';
+    }
+    if (mkdir(dir, 0755) != 0 && errno != EEXIST)
+        return false;
+    return true;
+}
+
 bool get_alias_file_path(char *buf, size_t size)
 {
-    const char *home = getenv("HOME");
-    if (!home)
-        return false;
+    const char *custom = getenv("AM_ALIAS_FILE");
+    if (custom) {
+        int n = snprintf(buf, size, "%s", custom);
+        return n > 0 && (size_t)n < size;
+    }
 
-    int written = snprintf(buf, size, "%s/%s", home, ALIAS_FILE);
-    return written > 0 && (size_t)written < size;
+    const char *home = getenv("HOME");
+    if (!home) return false;
+
+    struct stat st;
+    char legacy[PATH_MAX];
+    int legacy_len = snprintf(legacy, sizeof(legacy), "%s/%s", home, ALIAS_FILE);
+    if (legacy_len > 0 && (size_t)legacy_len < sizeof(legacy) && stat(legacy, &st) == 0) {
+        snprintf(buf, size, "%s", legacy);
+        return true;
+    }
+
+    const char *xdg = getenv("XDG_CONFIG_HOME");
+    int n = xdg ?
+        snprintf(buf, size, "%s/%s/%s", xdg, XDG_CONFIG_DIR, XDG_ALIAS_FILE) :
+        snprintf(buf, size, "%s/.config/%s/%s", home, XDG_CONFIG_DIR, XDG_ALIAS_FILE);
+
+    return n > 0 && (size_t)n < size;
 }

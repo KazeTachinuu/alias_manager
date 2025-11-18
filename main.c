@@ -79,16 +79,17 @@ static ErrorCode handle_init(int argc, char *argv[])
         return ERR_INVALID_ARG;
     }
 
-    // Get just the shell name from the path
     const char *shell_name = strrchr(shell, '/');
     shell_name = shell_name ? shell_name + 1 : shell;
 
-    // Output shell-specific initialization code
     if (strcmp(shell_name, "bash") == 0 || strcmp(shell_name, "zsh") == 0) {
         printf("# Add this to your ~/.%src or run: eval \"$(am init)\"\n", shell_name);
+        printf("[[ -f \"${XDG_CONFIG_HOME:-$HOME/.config}/am/aliases.txt\" ]] && source \"${XDG_CONFIG_HOME:-$HOME/.config}/am/aliases.txt\"\n");
         printf("[[ -f ~/.my_aliases.txt ]] && source ~/.my_aliases.txt\n");
     } else if (strcmp(shell_name, "fish") == 0) {
-        printf("# Add this to your ~/.config/fish/config.fish or run: am init fish | source\n");
+        printf("# Add this to your ~/.config/fish/config.fish\n");
+        printf("set -q XDG_CONFIG_HOME; and set -l am_config_dir $XDG_CONFIG_HOME; or set -l am_config_dir ~/.config\n");
+        printf("test -f $am_config_dir/am/aliases.txt; and source $am_config_dir/am/aliases.txt\n");
         printf("test -f ~/.my_aliases.txt && source ~/.my_aliases.txt\n");
     } else {
         fprintf(stderr, "Unsupported shell: %s\n", shell_name);
