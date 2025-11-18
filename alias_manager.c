@@ -164,8 +164,13 @@ ErrorCode am_add(const char *name, const char *command)
     fclose(fp);
 
     if (err == SUCCESS)
+    {
         log_success("Added alias '%s%s%s' → '%s'", COLOR_YELLOW, name,
                     COLOR_RESET, command);
+        printf("%shint:%s Run '%seval \"$(am reload)\"%s' to use it in this "
+               "shell\n",
+               COLOR_BLUE, COLOR_RESET, COLOR_GREEN, COLOR_RESET);
+    }
 
     return err;
 }
@@ -258,7 +263,11 @@ ErrorCode am_remove(const char *name, bool force)
     }
 
     if (!force)
+    {
         log_success("Removed alias '%s%s%s'", COLOR_YELLOW, name, COLOR_RESET);
+        printf("%shint:%s Run '%sunalias %s%s' to remove it from this shell\n",
+               COLOR_BLUE, COLOR_RESET, COLOR_GREEN, name, COLOR_RESET);
+    }
 
     return SUCCESS;
 }

@@ -33,7 +33,7 @@ static void print_usage(void)
            am_color_reset());
     printf("  %sls%s [filter]       List aliases\n", am_color_yellow(),
            am_color_reset());
-    printf("  %sreload%s            Reload aliases in current shell\n",
+    printf("  %sreload%s            Print source command (use with eval)\n",
            am_color_yellow(), am_color_reset());
     printf("  help              Show this help\n");
     printf("  version           Show version\n");
