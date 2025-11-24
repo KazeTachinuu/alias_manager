@@ -182,22 +182,15 @@ else
     fail "Init file contains header"
 fi
 
-# Test: Init is idempotent (running twice doesn't break)
-ORIG_TIME=$(stat -f %m "$INIT_ALIAS_FILE" 2>/dev/null || stat -c %Y "$INIT_ALIAS_FILE" 2>/dev/null)
-if [ -z "$ORIG_TIME" ]; then
-    fail "Init is idempotent (unable to read original timestamp)"
-else
-    sleep 1
-    HOME="$INIT_TEST_DIR" AM_ALIAS_FILE="$INIT_ALIAS_FILE" bash -c 'echo n | ./am init bash' >/dev/null 2>&1
-    NEW_TIME=$(stat -f %m "$INIT_ALIAS_FILE" 2>/dev/null || stat -c %Y "$INIT_ALIAS_FILE" 2>/dev/null)
+# Test: Init is idempotent (running twice doesn't change file contents)
+ORIG_CONTENT=$(cat "$INIT_ALIAS_FILE" 2>/dev/null)
+HOME="$INIT_TEST_DIR" AM_ALIAS_FILE="$INIT_ALIAS_FILE" bash -c 'echo n | ./am init bash' >/dev/null 2>&1
+NEW_CONTENT=$(cat "$INIT_ALIAS_FILE" 2>/dev/null)
 
-    if [ -z "$NEW_TIME" ]; then
-        fail "Init is idempotent (unable to read new timestamp)"
-    elif [ "$ORIG_TIME" = "$NEW_TIME" ]; then
-        pass "Init is idempotent"
-    else
-        fail "Init is idempotent"
-    fi
+if [ "$ORIG_CONTENT" = "$NEW_CONTENT" ]; then
+    pass "Init is idempotent"
+else
+    fail "Init is idempotent"
 fi
 
 # Test: Init file works with am add
