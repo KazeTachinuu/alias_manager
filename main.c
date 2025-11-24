@@ -218,6 +218,13 @@ static ErrorCode handle_init(int argc, char *argv[])
         return SUCCESS;
     }
 
+    ErrorCode file_err = am_init_file();
+    if (file_err != SUCCESS)
+    {
+        fprintf(stderr, "%sWarning:%s Could not create alias file\n",
+                am_color_yellow(), am_color_reset());
+    }
+
     // Interactive confirmation
     printf("%sSetup%s\n", am_color_blue(), am_color_reset());
     printf("Shell:  %s\n", shell_name);

@@ -24,6 +24,7 @@ const char *am_color_reset(void);
 ErrorCode am_add(const char *name, const char *command);
 ErrorCode am_remove(const char *name, bool force);
 ErrorCode am_list(const char *filter);
+ErrorCode am_init_file(void);
 bool am_get_path(char *buf, size_t size);
 const char *error_message(ErrorCode err);
 

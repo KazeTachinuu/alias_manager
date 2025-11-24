@@ -146,6 +146,72 @@ else
 fi
 
 echo
+echo "=== Init File Creation ==="
+
+# Test: Init creates alias file and directory
+INIT_TEST_DIR="/tmp/am_init_test_$$"
+INIT_ALIAS_FILE="$INIT_TEST_DIR/custom/nested/path/aliases.txt"
+mkdir -p "$INIT_TEST_DIR"
+
+# Run init with custom path (cancel interactive part)
+HOME="$INIT_TEST_DIR" AM_ALIAS_FILE="$INIT_ALIAS_FILE" bash -c 'echo n | ./am init bash' >/dev/null 2>&1
+
+if [ -d "$(dirname "$INIT_ALIAS_FILE")" ]; then
+    pass "Init creates directory structure"
+else
+    fail "Init creates directory structure"
+fi
+
+if [ -f "$INIT_ALIAS_FILE" ]; then
+    pass "Init creates alias file"
+else
+    fail "Init creates alias file"
+fi
+
+# Test: Init file has proper permissions
+if [ -r "$INIT_ALIAS_FILE" ] && [ -w "$INIT_ALIAS_FILE" ]; then
+    pass "Init file has correct permissions"
+else
+    fail "Init file has correct permissions"
+fi
+
+# Test: Init file contains header comments
+if grep -q "# Alias Manager" "$INIT_ALIAS_FILE" 2>/dev/null; then
+    pass "Init file contains header"
+else
+    fail "Init file contains header"
+fi
+
+# Test: Init is idempotent (running twice doesn't break)
+ORIG_TIME=$(stat -f %m "$INIT_ALIAS_FILE" 2>/dev/null || stat -c %Y "$INIT_ALIAS_FILE" 2>/dev/null)
+if [ -z "$ORIG_TIME" ]; then
+    fail "Init is idempotent (unable to read original timestamp)"
+else
+    sleep 1
+    HOME="$INIT_TEST_DIR" AM_ALIAS_FILE="$INIT_ALIAS_FILE" bash -c 'echo n | ./am init bash' >/dev/null 2>&1
+    NEW_TIME=$(stat -f %m "$INIT_ALIAS_FILE" 2>/dev/null || stat -c %Y "$INIT_ALIAS_FILE" 2>/dev/null)
+
+    if [ -z "$NEW_TIME" ]; then
+        fail "Init is idempotent (unable to read new timestamp)"
+    elif [ "$ORIG_TIME" = "$NEW_TIME" ]; then
+        pass "Init is idempotent"
+    else
+        fail "Init is idempotent"
+    fi
+fi
+
+# Test: Init file works with am add
+HOME="$INIT_TEST_DIR" AM_ALIAS_FILE="$INIT_ALIAS_FILE" ./am add inittest "echo test" >/dev/null 2>&1
+if grep -q "alias inittest='echo test'" "$INIT_ALIAS_FILE" 2>/dev/null; then
+    pass "Init file integrates with am add"
+else
+    fail "Init file integrates with am add"
+fi
+
+# Cleanup init test
+rm -rf "$INIT_TEST_DIR"
+
+echo
 echo "=== Reload Command Behavior ==="
 
 # Test: Reload produces executable shell code for bash

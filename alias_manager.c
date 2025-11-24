@@ -319,6 +319,57 @@ ErrorCode am_list(const char *filter)
     return SUCCESS;
 }
 
+ErrorCode am_init_file(void)
+{
+    am_init_colors();
+
+    char path[PATH_MAX];
+    if (!am_get_path(path, sizeof(path)))
+    {
+        log_error("Could not determine alias file path");
+        return ERR_HOME_DIR;
+    }
+
+    if (access(path, F_OK) == 0)
+        return SUCCESS;
+
+    if (!mkdirp(path))
+    {
+        log_error("Cannot create directory for alias file: %s", strerror(errno));
+        return ERR_FILE_ACCESS;
+    }
+
+    FILE *fp = fopen(path, "w");
+    if (!fp)
+    {
+        if (access(path, F_OK) == 0)
+            return SUCCESS;
+        log_error("Cannot create alias file: %s", strerror(errno));
+        return ERR_FILE_ACCESS;
+    }
+
+    if (fprintf(fp,
+                "# Alias Manager - Managed aliases\n"
+                "# Edit with: am add <name> <command>\n"
+                "# List with: am ls\n"
+                "# Remove with: am rm <name>\n")
+        < 0)
+    {
+        fclose(fp);
+        log_error("Cannot write to alias file: %s", strerror(errno));
+        return ERR_FILE_ACCESS;
+    }
+
+    if (fclose(fp) != 0)
+    {
+        log_error("Error closing alias file: %s", strerror(errno));
+        return ERR_FILE_ACCESS;
+    }
+
+    log_success("Created alias file: %s", path);
+    return SUCCESS;
+}
+
 // Utility implementations
 const char *error_message(ErrorCode err)
 {
