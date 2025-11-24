@@ -1,6 +1,6 @@
 # Maintainer: Hugo Sibony <kazetachinuu@protonmail.com>
 pkgname=alias-manager
-pkgver=2.3.0
+pkgver=2.3.1
 pkgrel=1
 pkgdesc="Lightweight CLI tool for managing shell aliases"
 arch=('x86_64' 'i686' 'aarch64' 'armv7h')
