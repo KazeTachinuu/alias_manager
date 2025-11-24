@@ -1,109 +1,125 @@
-.TH AM 1 "November 2025" "2.3.1" "Alias Manager Manual"
+.TH AM 1 "November 2025" "2.3.1" "Alias Manager"
 .SH NAME
-am \- manage shell aliases efficiently
+am \- manage shell aliases
 .SH SYNOPSIS
-.B am
+.SY am
+.B init
+.RI [ shell ]
+.YS
+.SY am
+.B add
+.I name
 .I command
-[\fIoptions\fR]
+.YS
+.SY am
+.B rm
+.I name
+.RB [ \-f ]
+.YS
+.SY am
+.B ls
+.RI [ pattern ]
+.YS
+.SY am
+.B reload
+.RI [ shell ]
+.YS
+.SY am
+.B path
+.YS
+.SY am
+.B help | version
+.YS
 .SH DESCRIPTION
 .B am
-is a lightweight command-line tool for managing shell aliases. It provides a simple interface to add, remove, and list aliases stored in
-.IR ~/.config/am/aliases.txt .
+is a lightweight CLI tool for managing shell aliases.
+Aliases are stored in a plain text file and can be loaded into any POSIX shell.
 .SH COMMANDS
 .TP
-.BR "init " [\fIshell\fR]
-Interactive setup that adds alias loading to your shell configuration file.
-Auto-detects the shell from $SHELL if not specified.
+.BI init " " \fR[\fIshell\fR]
+Interactive setup that adds alias loading to your shell configuration.
+Auto-detects shell from
+.B $SHELL
+if not specified.
 Use
-.B "init --hook"
-to output only the shell code for manual integration.
+.B init \-\-hook
+to output shell code for manual integration.
 Supported shells: bash, zsh, fish.
 .TP
-.BR "add " \fIname\fR " " \fIcommand\fR...
-Create or update an alias. If an alias with the same name exists, it will be replaced.
+.BI add " name command"
+Create or update an alias.
 .TP
-.BR "rm " \fIname\fR " " [\fI-f\fR]
-Remove an alias. Without
-.IR -f ,
-prompts for confirmation.
+.BI rm " name" \fR " [\fB\-f\fR]"
+Remove an alias.
+Prompts for confirmation unless
+.B \-f
+is specified.
 .TP
-.BR "ls " [\fIpattern\fR]
-List all aliases, or filter by pattern if provided.
-The pattern matches both alias names and commands.
+.BI ls " " \fR[\fIpattern\fR]
+List all aliases, or filter by pattern.
 .TP
-.BR "reload " [\fIshell\fR]
-Output the command to reload aliases in the current shell.
+.BI reload " " \fR[\fIshell\fR]
+Output command to reload aliases.
 Use with
-.BR "eval $(am reload)" .
+.BR "eval \(dq$(am reload)\(dq" .
 .TP
 .B path
-Show the path to the alias file.
+Show alias file path.
 .TP
 .B help
 Show help message.
 .TP
 .B version
-Show version information.
+Show version.
 .SH OPTIONS
 .TP
-.B \-\-help
-Display help message (same as
-.BR "help" ).
-.TP
-.B \-\-version
-Display version information (same as
-.BR "version" ).
-.TP
 .B \-f
-Force operation without confirmation (for
-.BR rm " command)."
+Force removal without confirmation.
 .SH FILES
-The alias file location is determined by the following priority:
-.TP
-.I $AM_ALIAS_FILE
-Custom alias file path (highest priority). Useful for testing or custom setups.
-.TP
-.I $XDG_CONFIG_HOME/am/aliases.txt
-XDG standard configuration location if XDG_CONFIG_HOME is set.
 .TP
 .I ~/.config/am/aliases.txt
-Default XDG configuration location.
+Default alias storage location.
+.TP
+.I $XDG_CONFIG_HOME/am/aliases.txt
+Used if
+.B XDG_CONFIG_HOME
+is set.
 .SH ENVIRONMENT
 .TP
 .B AM_ALIAS_FILE
-Override the alias file location. Useful for testing or custom setups.
+Override alias file location.
 .TP
 .B XDG_CONFIG_HOME
-Standard XDG configuration directory. If set, aliases are stored in
-.IR $XDG_CONFIG_HOME/am/aliases.txt .
+XDG base directory for configuration files.
 .SH EXAMPLES
-.TP
-Interactive setup (run once):
-.B am init
-.TP
-Create an alias for git log:
-.B am add gl git log \-\-oneline \-\-graph
-.TP
-List all aliases:
-.B am ls
-.TP
-Search for git-related aliases:
-.B am ls git
-.TP
-Reload aliases in current shell:
-.B eval "$(am reload)"
-.TP
-Show alias file location:
-.B am path
-.TP
-Remove an alias with confirmation:
-.B am rm gl
-.TP
-Remove an alias without confirmation:
-.B am rm gl \-f
-.TP
-Manual shell integration (alternative to interactive setup):
-.B eval "$(am init --hook)" >> ~/.bashrc
+Setup (run once):
+.IP
+.EX
+am init
+source ~/.bashrc
+.EE
+.PP
+Add and use an alias:
+.IP
+.EX
+am add gc "git commit -m"
+eval "$(am reload)"
+gc "initial commit"
+.EE
+.PP
+List and filter aliases:
+.IP
+.EX
+am ls
+am ls git
+.EE
+.PP
+Remove an alias:
+.IP
+.EX
+am rm gc
+am rm gc -f
+.EE
 .SH EXIT STATUS
 .TP
 .B 0
@@ -120,32 +136,11 @@ Home directory not found
 .TP
 .B 4
 System error
-.SH SHELL INTEGRATION
-The recommended way to integrate with your shell is to use the interactive init command:
-.PP
-.RS
-.B am init
-.RE
-.PP
-This will automatically detect your shell and add the necessary configuration to your shell's RC file.
-.PP
-For manual integration, you can use the --hook flag:
-.PP
-.RS
-.B Bash:
-eval "$(am init --hook)" in ~/.bashrc
-.br
-.B Zsh:
-eval "$(am init --hook)" in ~/.zshrc
-.br
-.B Fish:
-am init --hook fish | source in ~/.config/fish/config.fish
-.RE
+.SH SEE ALSO
+.BR alias (1),
+.BR bash (1),
+.BR zsh (1)
 .SH AUTHOR
 Hugo Sibony
 .SH LICENSE
-MIT License
-.SH SEE ALSO
-.BR bash (1),
-.BR zsh (1),
-.BR alias (1)
+MIT
