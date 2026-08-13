@@ -2,9 +2,6 @@
 
 > A lightweight CLI tool to manage your shell aliases
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![AUR version](https://img.shields.io/aur/version/alias-manager)](https://aur.archlinux.org/packages/alias-manager)
-[![GitHub release](https://img.shields.io/github/v/release/kazetachinuu/alias_manager)](https://github.com/kazetachinuu/alias_manager/releases)
 
 ## Quick Start
 
@@ -39,16 +36,18 @@ yay -S alias-manager
 
 ### Debian / Ubuntu
 
+Downloads: [latest release](https://github.com/kazetachinuu/alias_manager/releases/latest)
+
 ```bash
-wget https://github.com/kazetachinuu/alias_manager/releases/latest/download/alias-manager_2.3.1_amd64.deb
-sudo dpkg -i alias-manager_2.3.1_amd64.deb
+# grab the .deb from the latest release, then:
+sudo dpkg -i alias-manager_*_amd64.deb
 ```
 
 ### Other Linux
 
 ```bash
-wget https://github.com/kazetachinuu/alias_manager/releases/latest/download/alias-manager-2.3.1-linux-amd64.tar.gz
-tar -xzf alias-manager-2.3.1-linux-amd64.tar.gz
+# grab the tarball for your platform from the latest release, then:
+tar -xzf alias-manager-*.tar.gz
 sudo install -m 755 am /usr/local/bin/am
 ```
 
